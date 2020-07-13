@@ -1,5 +1,6 @@
-# VOICI MON PREMIER PROJET FRONT-END
+# Etapes de la réalisation du projet
 
-## Sur la non utilisation de "this" et "new"
+## Plan de création des différents éléments
 
-Vous aurez sûrement remarqué que je n'utilise pas les mots-clefs "this" et "new" dans mon code. Ce n'est pas parce que je ne sais pas les utiliser, mais parce que j'ai choisi de ne pas les utiliser.
+### Création de l'élément paddle
+
