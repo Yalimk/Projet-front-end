@@ -14,7 +14,8 @@ body {
   width: 100vw;
 }
 
-#canvas {
-  background-color: white;
+#gameCanvas {
+  background-color: white /*#bea891*/;
   border: 1px solid black;
+  margin: 10px;
 }

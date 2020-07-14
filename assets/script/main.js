@@ -1,6 +1,6 @@
-const canvas = document.getElementById("canvas");
-canvas.width = 900;
-canvas.height = 600;
+const canvas = document.getElementById("gameCanvas");
+canvas.width = 1200;
+canvas.height = 900;
 const ctx = canvas.getContext("2d");
 
 // Dessiner le paddle (un rectangle plein) ; OK
@@ -14,56 +14,57 @@ const ctx = canvas.getContext("2d");
 // Créer la boîte de dialogue qui s'ouvre pour recommencer la partie ou télécharger le CV en cas de victoire OU en cas de GAME OVER;
 // Créer un bouton START qui apparaîtra avant le lancement du jeu et qui lancera le jeu (les contrôles du jeu seront expliqués dans cette boîte de dialogue, en dessous du message START);
 // Ajouter l'image de fond qui comprend mes différentes compétences ; cette image sera placée derrière le mur de briques ;
+// Ajouter l'image de background pour le gameCanvas ;
 
+let padding = 10;
 let gamePaddle = createPaddle();
 let gameBall = createBall();
 let rightArrow = false;
 let leftArrow = false;
-let spaceBar = false;
+// let spaceBar = false;
 
 window.addEventListener("keydown", (event) => {
-  // console.log(event.key);
   if (event.key === "ArrowLeft") {
     event.preventDefault();
     leftArrow = true;
+    rightArrow = "";
   } else if (event.key === "ArrowRight") {
     event.preventDefault();
     rightArrow = true;
+    leftArrow = "";
   }
 });
 
 window.addEventListener("keyup", (event) => {
   if (event.key === "ArrowLeft") {
-    event.preventDefault();
     leftArrow = false;
   } else if (event.key === "ArrowRight") {
-    event.preventDefault();
     rightArrow = false;
   }
 });
 
-window.addEventListener("keydown", (event) => {
-  if (event.key === " ") {
-    event.preventDefault();
-    spaceBar = true;
-  }
-});
+// window.addEventListener("keydown", (event) => {
+//   if (event.key === " ") {
+//     event.preventDefault();
+//     spaceBar = true;
+//   }
+// });
 
 function createPaddle() {
   let paddle = {};
   paddle.width = 100;
-  paddle.height = 15;
+  paddle.height = 10;
   paddle.posX = (canvas.width - paddle.width) * 0.5;
-  paddle.posY = canvas.height - paddle.height * 2;
+  paddle.posY = canvas.height - paddle.height - padding * 5;
   paddle.velX = 5;
   return paddle;
 }
 
 function createBall() {
   let ball = {};
-  ball.radius = 15;
-  ball.velX = 3;
-  ball.velY = -3;
+  ball.radius = 10;
+  ball.dirX = (Math.random() - 0.5) * 3;
+  ball.dirY = -3;
   ball.posX = gamePaddle.posX + gamePaddle.width / 2;
   ball.posY = gamePaddle.posY - ball.radius;
   return ball;
@@ -87,41 +88,56 @@ function drawBall(ballObject) {
 
 function movePaddle(paddleObject) {
   if (leftArrow && paddleObject.posX > 0) {
-    paddleObject.posX -= paddleObject.velX;
     rightArrow = false;
+    paddleObject.posX -= paddleObject.velX;
   } else if (
     rightArrow &&
     paddleObject.posX + paddleObject.width < canvas.width
   ) {
-    paddleObject.posX += paddleObject.velX;
     leftArrow = false;
+    paddleObject.posX += paddleObject.velX;
   }
 }
 
 function moveBall(ballObject) {
-  if (spaceBar) {
-    ballObject.posX += ballObject.velX;
-    ballObject.posY += ballObject.velY;
-  }
+  // if (spaceBar) {
+  //   ballObject.posX += ballObject.dirX;
+  //   ballObject.posY += ballObject.dirY;
+  // }
   if (
     ballObject.posX + ballObject.radius >= canvas.width ||
     ballObject.posX - ballObject.radius <= 0
   ) {
-    ballObject.velX *= -1;
-  } else if (
-    ballObject.posY - ballObject.radius <= 0 ||
-    ballObject.posY + ballObject.radius >= canvas.height
-  ) {
-    ballObject.velY *= -1;
+    ballObject.dirX *= -1;
+  } else if (ballObject.posY - ballObject.radius <= 0) {
+    ballObject.dirY *= -1;
   }
+
+  ballObject.posX += ballObject.dirX;
+  ballObject.posY += ballObject.dirY;
+
+  // On ajoutera ici la condition qui fait que si la balle touche une brique / bulle, sa vélocité augmente de 0.05... démoniaque *,..,*
 }
 
+function makeCollide(ballObject, paddleObject) {
+  // if (
+  //   ballObject.posX - ballObject.radius > paddleObject.posX &&
+  //   ballObject.posX + ballObject.radius <
+  //     paddleObject.posX + paddleObject.width &&
+  //   ballObject.posY + ballObject.radius < paddleObject.posY
+  // ) {
+  //   ballObject.dirY *= -1;
+  // }
+}
+
+// setInterval(startGame, 1000); // Utilisé pour vérifier certains paramètres.
 function startGame() {
   requestAnimationFrame(startGame);
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawPaddle(gamePaddle);
   drawBall(gameBall);
-  movePaddle(gamePaddle);
   moveBall(gameBall);
+  movePaddle(gamePaddle);
+  makeCollide(gameBall, gamePaddle);
 }
 startGame();
