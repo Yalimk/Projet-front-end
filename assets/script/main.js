@@ -16,12 +16,17 @@ const ctx = canvas.getContext("2d");
 // Ajouter l'image de fond qui comprend mes différentes compétences ; cette image sera placée derrière le mur de briques ;
 // Ajouter l'image de background pour le gameCanvas ;
 
-let padding = 10;
+let canvasPadding = 10;
 let gamePaddle = createPaddle();
 let gameBall = createBall();
+let gameBrick = createBricks();
+let gameBrickwall = createBrickwall();
 let rightArrow = false;
 let leftArrow = false;
-// let spaceBar = false;
+let spaceBar = false;
+let bubblesArray = [];
+
+// Tous les événements permettant d'écouter les touches du clavier :
 
 window.addEventListener("keydown", (event) => {
   if (event.key === "ArrowLeft") {
@@ -43,19 +48,21 @@ window.addEventListener("keyup", (event) => {
   }
 });
 
-// window.addEventListener("keydown", (event) => {
-//   if (event.key === " ") {
-//     event.preventDefault();
-//     spaceBar = true;
-//   }
-// });
+window.addEventListener("keydown", (event) => {
+  if (event.key === " ") {
+    event.preventDefault();
+    spaceBar = true;
+  }
+});
+
+// Les fonctions créatrices d'objet :
 
 function createPaddle() {
   let paddle = {};
   paddle.width = 100;
   paddle.height = 10;
   paddle.posX = (canvas.width - paddle.width) * 0.5;
-  paddle.posY = canvas.height - paddle.height - padding * 5;
+  paddle.posY = canvas.height - paddle.height - canvasPadding * 3;
   paddle.velX = 5;
   return paddle;
 }
@@ -66,25 +73,113 @@ function createBall() {
   ball.dirX = (Math.random() - 0.5) * 3;
   ball.dirY = -3;
   ball.posX = gamePaddle.posX + gamePaddle.width / 2;
-  ball.posY = gamePaddle.posY - ball.radius;
+  ball.posY = gamePaddle.posY - ball.radius + 1;
   return ball;
 }
 
+function createBricks() {
+  let brick = {};
+  brick.width = 100; //(canvas.width - canvasPadding * 2) / 10;
+  brick.height = 30; //(canvas.height - canvasPadding * 2) / 20;
+  brick.padding = 15;
+  brick.posX = 0;
+  brick.posY = 0;
+  brick.status = 1;
+  brick.offset = 33;
+  return brick;
+  // Used to create gameBrick;
+}
+
+function createBrickwall() {
+  let Brickwall = {};
+  Brickwall.bricksArray = [];
+  Brickwall.rowCount = 7;
+  Brickwall.colCount = 10;
+  return Brickwall;
+  // Used to create gameBrickwall;
+}
+
+function createBubbles() {
+  const bubble = {};
+  bubble.radius = Math.random() * 20 + 10;
+  bubble.x = Math.random() * (canvas.width - bubble.radius * 2) + bubble.radius;
+  bubble.y =
+    Math.random() * (canvas.height - bubble.radius * 2) + bubble.radius;
+  bubble.speedX = (Math.random() - 0.5) * 8;
+  bubble.speedY = (Math.random() - 0.5) * 8;
+  bubble.maxRadius = Math.random() * 99 + 25;
+  bubble.draw = function () {
+    ctx.beginPath();
+    ctx.arc(bubble.x, bubble.y, bubble.radius, 0, Math.PI * 2);
+    // ctx.fillStyle = //insert color for bubbles
+    ctx.fill();
+  };
+  bubble.move = function () {
+    if (
+      bubble.x + bubble.radius >= canvas.width ||
+      bubble.x - bubble.radius <= 0
+    ) {
+      bubble.speedX *= -1;
+    }
+    if (
+      bubble.y + bubble.radius >= canvas.height ||
+      bubble.y - bubble.radius <= 0
+    ) {
+      bubble.speedY *= -1;
+    }
+    bubble.x += bubble.speedX;
+    bubble.y += bubble.speedY;
+  };
+  return bubble;
+}
+
+for (let i = 0; i < 20; i++) {
+  bubblesArray.push(createBubbles());
+  bubblesArray[i].draw();
+}
+
+// Les fonctions de dessin d'objets :
+
 function drawPaddle(paddleObject) {
   ctx.beginPath();
-  ctx.fillRect(
+  ctx.rect(
     paddleObject.posX,
     paddleObject.posY,
     paddleObject.width,
     paddleObject.height
   );
+  ctx.fillStyle = "red";
+  ctx.fill();
 }
 
 function drawBall(ballObject) {
   ctx.beginPath();
   ctx.arc(ballObject.posX, ballObject.posY, ballObject.radius, 0, Math.PI * 2);
+  ctx.fillStyle = "blue";
   ctx.fill();
 }
+
+function drawBrickwall(brickwallObject, brickObject) {
+  for (let r = 0; r < brickwallObject.rowCount; r++) {
+    brickwallObject.bricksArray[r] = [];
+    for (let c = 0; c < brickwallObject.colCount; c++) {
+      let brickPosX =
+        c * (brickObject.width + brickObject.padding) + brickObject.offset;
+      let brickPosY =
+        r * (brickObject.height + brickObject.padding) + brickObject.offset;
+      brickwallObject.bricksArray[r][c] = {
+        x: brickPosX,
+        y: brickPosY,
+      };
+      ctx.beginPath();
+      ctx.rect(brickPosX, brickPosY, brickObject.width, brickObject.height);
+      ctx.fillStyle = "green";
+      ctx.fill();
+    }
+  }
+}
+
+// Les fonctions qui gèrent les déplacements :
 
 function movePaddle(paddleObject) {
   if (leftArrow && paddleObject.posX > 0) {
@@ -100,10 +195,10 @@ function movePaddle(paddleObject) {
 }
 
 function moveBall(ballObject) {
-  // if (spaceBar) {
-  //   ballObject.posX += ballObject.dirX;
-  //   ballObject.posY += ballObject.dirY;
-  // }
+  if (spaceBar) {
+    ballObject.posX += ballObject.dirX;
+    ballObject.posY += ballObject.dirY;
+  }
   if (
     ballObject.posX + ballObject.radius >= canvas.width ||
     ballObject.posX - ballObject.radius <= 0
@@ -113,31 +208,36 @@ function moveBall(ballObject) {
     ballObject.dirY *= -1;
   }
 
-  ballObject.posX += ballObject.dirX;
-  ballObject.posY += ballObject.dirY;
-
   // On ajoutera ici la condition qui fait que si la balle touche une brique / bulle, sa vélocité augmente de 0.05... démoniaque *,..,*
 }
 
-function makeCollide(ballObject, paddleObject) {
-  // if (
-  //   ballObject.posX - ballObject.radius > paddleObject.posX &&
-  //   ballObject.posX + ballObject.radius <
-  //     paddleObject.posX + paddleObject.width &&
-  //   ballObject.posY + ballObject.radius < paddleObject.posY
-  // ) {
-  //   ballObject.dirY *= -1;
-  // }
+// Les fonctions qui gèrent les collisions :
+
+function ballPaddleCollision(ballObject, paddleObject) {
+  if (
+    ballObject.posX > paddleObject.posX &&
+    ballObject.posX < paddleObject.posX + paddleObject.width &&
+    ballObject.posY + ballObject.radius ===
+      paddleObject.posY + paddleObject.height
+  ) {
+    ballObject.dirY *= -1;
+  }
 }
 
 // setInterval(startGame, 1000); // Utilisé pour vérifier certains paramètres.
 function startGame() {
   requestAnimationFrame(startGame);
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+  drawBrickwall(gameBrickwall, gameBrick);
   drawPaddle(gamePaddle);
   drawBall(gameBall);
-  moveBall(gameBall);
   movePaddle(gamePaddle);
-  makeCollide(gameBall, gamePaddle);
+  moveBall(gameBall);
+  ballPaddleCollision(gameBall, gamePaddle);
+  // ballBrickCollision(gameBall, gameBrick)
+  // bubblesArray.forEach((bubble) => {
+  //   bubble.draw();
+  //   bubble.move();
+  // });
 }
 startGame();
