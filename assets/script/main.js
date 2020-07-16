@@ -2,28 +2,50 @@ const canvas = document.getElementById("gameCanvas");
 canvas.width = 1200;
 canvas.height = 900;
 const ctx = canvas.getContext("2d");
+/*******************DEVELOPMENT ROADMAP*******************/
 
+/*********************FEATURES ADDED*********************/
 // Dessiner le paddle (un rectangle plein) ; OK
 // Gérer les mouvements du paddle (de gauche à droite, et en empêchant qu'il ne sorte du canvas) ; OK
 // Dessiner la balle (elle est ronde, à l'évidence, et pleine) ; OK
 
-// Créer les mouvements de la balle (doit rebondir contre toutes les paroies sauf celle du bas, et doit également rebondir contre le paddle) ;
-// Dessiner les briques (on utilisera pour cela un tableau à deux dimensions - lignes et colonnes. Il y aura 10 colonnes et 5 lignes, soit 50 briques) ;
-// Gérer les collisions (entre la balle et le paddle et entre la balle et les briques) ;
-// Créer les conditions de victoire (si toutes les briques ont été détruites) et de défaite (si la balle tombe derrière le paddle) ;
+// Créer les mouvements de la balle (doit rebondir contre toutes les paroies sauf celle du bas, et doit également rebondir contre le paddle) ; OK
+
+// Dessiner les briques (on utilisera pour cela un tableau à deux dimensions - lignes et colonnes. Il y aura 10 colonnes et 7 lignes, soit 70 briques) ; OK
+
+// Gérer les collisions (entre la balle et le paddle et entre la balle et les briques) ; OK
+
+// Créer les conditions de victoire (si toutes les briques ont été détruites) et de défaite (si la balle tombe derrière le paddle) ; OK
+
+/*******************FEATURES TO BE ADDED*******************/
+// Dessiner l'image du score ;
 // Créer la boîte de dialogue qui s'ouvre pour recommencer la partie ou télécharger le CV en cas de victoire OU en cas de GAME OVER;
 // Créer un bouton START qui apparaîtra avant le lancement du jeu et qui lancera le jeu (les contrôles du jeu seront expliqués dans cette boîte de dialogue, en dessous du message START);
 // Ajouter l'image de fond qui comprend mes différentes compétences ; cette image sera placée derrière le mur de briques ;
 // Ajouter l'image de background pour le gameCanvas ;
 
+/**********************BONUS FEATURES**********************/
+// Implémenter les fonctionnalités des bulles rouges et bleues (optionnel);
+// Implémenter la vectorisation des trajectoires de la balle (optionnel);
+
+/*****************************************************************/
+
 let canvasPadding = 10;
+let paddleImg = new Image();
+paddleImg.src = "images/wooden-paddle.png";
+let brickImg = new Image();
+brickImg.src = "images/one-yellow-brick-130-52.png";
 let gamePaddle = createPaddle();
 let gameBall = createBall();
 let gameBrickwall = createBrickwall();
 let gameBrick = createBricks(gameBrickwall);
+let speedBubblesArray = [];
+let slowBubblesArray = [];
 let rightArrow = false;
 let leftArrow = false;
 let spaceBar = false;
+let score = 0;
+let restartDiv = document.getElementById("end");
 
 // Tous les événements permettant d'écouter les touches du clavier :
 
@@ -58,8 +80,8 @@ window.addEventListener("keydown", (event) => {
 
 function createPaddle() {
   let paddle = {};
-  paddle.width = 100;
-  paddle.height = 10;
+  paddle.width = 97;
+  paddle.height = 13;
   paddle.posX = (canvas.width - paddle.width) * 0.5;
   paddle.posY = canvas.height - paddle.height - canvasPadding * 3;
   paddle.velX = 5;
@@ -69,7 +91,7 @@ function createPaddle() {
 
 function createBall() {
   let ball = {};
-  ball.radius = 10;
+  ball.radius = 15;
   ball.dirX = (Math.random() - 0.5) * 5;
   ball.dirY = -3;
   ball.posX = gamePaddle.posX + gamePaddle.width / 2;
@@ -80,99 +102,117 @@ function createBall() {
 
 function createBrickwall() {
   let brickwall = {};
-  brickwall.rowCount = 7;
-  brickwall.colCount = 10;
+  // brickwall.rowCount = 1;
+  // brickwall.colCount = 1;
+  brickwall.rowCount = 6;
+  brickwall.colCount = 9;
+  brickwall.bricksArray = [];
   return brickwall;
   // Used to create gameBrickwall;
 }
 
 function createBricks(brickwallObject) {
   let brick = {};
-  brick.width = 100;
-  brick.height = 30;
+  brick.width = 130;
+  brick.height = 52;
   brick.padding = 3;
   brick.posX = 0;
   brick.posY = 0;
   brick.offsetTop = 50;
   brick.offsetLeft =
     (canvas.width - (brick.width + brick.padding) * brickwallObject.colCount) /
-    2;
+      2 +
+    brick.padding / 2;
   return brick;
   // Used to create gameBrick;
 }
 
-// let bubblesArray = [];
+function createBubbles(color) {
+  const bubble = {};
+  bubble.radius = Math.random() * 20 + 10;
+  bubble.x = Math.random() * (canvas.width - bubble.radius * 2) + bubble.radius;
+  bubble.y =
+    Math.random() * (canvas.height - bubble.radius * 2) + bubble.radius;
+  bubble.speedX = (Math.random() - 0.5) * 8;
+  bubble.speedY = (Math.random() - 0.5) * 8;
+  bubble.maxRadius = Math.random() * 99 + 25;
+  bubble.state = true;
 
-// function createBubbles() {
-//   const bubble = {};
-//   bubble.radius = Math.random() * 20 + 10;
-//   bubble.x = Math.random() * (canvas.width - bubble.radius * 2) + bubble.radius;
-//   bubble.y =
-//     Math.random() * (canvas.height - bubble.radius * 2) + bubble.radius;
-//   bubble.speedX = (Math.random() - 0.5) * 8;
-//   bubble.speedY = (Math.random() - 0.5) * 8;
-//   bubble.maxRadius = Math.random() * 99 + 25;
+  bubble.draw = function () {
+    if (bubble.state === true) {
+      ctx.beginPath();
+      ctx.arc(bubble.x, bubble.y, bubble.radius, 0, Math.PI * 2);
+      ctx.fillStyle = color;
+      ctx.fill();
+    }
+  };
 
-//   bubble.draw = function () {
-//     ctx.beginPath();
-//     ctx.arc(bubble.x, bubble.y, bubble.radius, 0, Math.PI * 2);
-//     ctx.fillStyle = "purple";
-//     ctx.fill();
-//   };
+  bubble.move = function () {
+    if (
+      bubble.x + bubble.radius >= canvas.width ||
+      bubble.x - bubble.radius <= 0
+    ) {
+      bubble.speedX *= -1;
+    }
 
-//   bubble.move = function () {
-//     if (
-//       bubble.x + bubble.radius >= canvas.width ||
-//       bubble.x - bubble.radius <= 0
-//     ) {
-//       bubble.speedX *= -1;
-//     }
+    if (
+      bubble.y + bubble.radius >= canvas.height ||
+      bubble.y - bubble.radius <= 0
+    ) {
+      bubble.speedY *= -1;
+    }
+    bubble.x += bubble.speedX;
+    bubble.y += bubble.speedY;
+  };
+  return bubble;
+  // Used to create all the bubbles, draw them and make them move on the screen;
+}
 
-//     if (
-//       bubble.y + bubble.radius >= canvas.height ||
-//       bubble.y - bubble.radius <= 0
-//     ) {
-//       bubble.speedY *= -1;
-//     }
-//     bubble.x += bubble.speedX;
-//     bubble.y += bubble.speedY;
-//   };
-//   return bubble;
-//   // Used to create all the bubbles, draw them and make them move on the screen;
-// }
-
-// (function drawBubbles() {
-//   for (let i = 0; i < 20; i++) {
-//     bubblesArray.push(createBubbles());
-//     bubblesArray[i].draw();
-//   }
-// })();
+(function drawBubbles() {
+  for (let i = 0; i < 5; i++) {
+    speedBubblesArray.push(createBubbles("red"));
+  }
+  for (let j = 0; j < 5; j++) {
+    slowBubblesArray.push(createBubbles("blue"));
+  }
+})();
 
 // Les fonctions de dessin d'objets :
 
 function drawPaddle(paddleObject) {
-  ctx.beginPath();
-  ctx.rect(
+  ctx.drawImage(
+    paddleImg,
+    0,
+    0,
+    paddleObject.width,
+    paddleObject.height,
     paddleObject.posX,
     paddleObject.posY,
     paddleObject.width,
     paddleObject.height
   );
-  ctx.fillStyle = "red";
-  ctx.fill();
-  ctx.closePath();
+  // ctx.beginPath();
+  // ctx.rect(
+  //   paddleObject.posX,
+  //   paddleObject.posY,
+  //   paddleObject.width,
+  //   paddleObject.height
+  // );
+  // ctx.fillStyle = "#A68D72";
+  // ctx.fill();
+  // ctx.closePath();
 }
 
 function drawBall(ballObject) {
   ctx.beginPath();
   ctx.arc(ballObject.posX, ballObject.posY, ballObject.radius, 0, Math.PI * 2);
-  ctx.fillStyle = "blue";
+  ctx.fillStyle = "#6294A6";
   ctx.fill();
   ctx.closePath();
 }
 
-/* Code snippet found at https://developer.mozilla.org/en-US/docs/Games/Tutorials/2D_Breakout_game_pure_JavaScript/Build_the_brick_field 
-I couldn't find any way around this. Trying to insert this snippet somewhere inside my code was extremely troublesome... */
+/* Code snippet found at https://developer.mozilla.org/en-US/docs/Games/Tutorials/2D_Breakout_game_pure_JavaScript/Build_the_brick_field
+I couldn't find any way around this. Trying to insert this snippet somewhere inside my code was extremely troublesome because the bricksArray, if defined as a property of the object gameBrickwall, wouldn't be accessible from the global scope, therefore causing issues. */
 let bricksArray = [];
 for (let r = 0; r < gameBrickwall.rowCount; r++) {
   bricksArray[r] = [];
@@ -198,11 +238,17 @@ function drawBrickwall(brickwallObject, brickObject) {
           brickObject.offsetTop;
         bricksArray[r][c].x = brickPosX;
         bricksArray[r][c].y = brickPosY;
-        ctx.beginPath();
-        ctx.rect(brickPosX, brickPosY, brickObject.width, brickObject.height);
-        ctx.fillStyle = "green";
-        ctx.fill();
-        ctx.closePath();
+        ctx.drawImage(
+          brickImg,
+          0,
+          0,
+          brickObject.width,
+          brickObject.height,
+          brickPosX,
+          brickPosY,
+          brickObject.width,
+          brickObject.height
+        );
       }
     }
   }
@@ -241,9 +287,13 @@ function moveBall(ballObject) {
 }
 
 function moveBubbles() {
-  bubblesArray.forEach((bubble) => {
-    bubble.draw();
-    bubble.move();
+  slowBubblesArray.forEach((blueBubble) => {
+    blueBubble.draw();
+    blueBubble.move();
+  });
+  speedBubblesArray.forEach((redBubble) => {
+    redBubble.draw();
+    redBubble.move();
   });
 }
 
@@ -274,22 +324,51 @@ function ballBrickCollision(ballObject, brickObject, brickwallObject) {
         bricks.state = false;
         bricks.x = 0;
         bricks.y = 0;
+        score += 1;
       }
     }
   }
 }
 
-// setInterval(startGame, 1000); // Utilisé pour vérifier certains paramètres.
+// Fonctions pour définir la victoire ou la défaite ainsi que le score
+
+function checkWinOrLose(ballObject, brickwallObject, paddleObject) {
+  if (score === brickwallObject.rowCount * brickwallObject.colCount) {
+    let questionWin = confirm(
+      `Bravo ! You win! 您赢了! Recommencer ? Restart ? 重新开始吗？Appuyez sur "Annuler" pour télécharger mon CV. Press "Cancel" to download my resume. 请点击“取消”下载我的简历。 `
+    );
+    if (questionWin) {
+      window.location.reload();
+    }
+  }
+  // else if (
+  //   ballObject.posY + ballObject.radius >
+  //   paddleObject.posY + paddleObject.height
+  // ) {
+  //   let questionLose = confirm(
+  //     `Perdu. You lose. 您输了。Recommencer ? Restart ? 重新开始吗？Appuyez sur "Annuler" pour télécharger mon CV. Press "Cancel" to download my resume. 请点击“取消”下载我的简历。 `
+  //   );
+  //   if (question) {
+  //     window.location.reload();
+  //   }
+  //  else {
+  //   window.location = "resume.html";
+  // }
+  // }
+}
+
 function startGame() {
   requestAnimationFrame(startGame);
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+  checkWinOrLose(gameBall, gameBrickwall, gamePaddle);
   drawBrickwall(gameBrickwall, gameBrick);
   drawPaddle(gamePaddle);
   drawBall(gameBall);
   movePaddle(gamePaddle);
   moveBall(gameBall);
-  // moveBubbles();
+  moveBubbles();
   ballPaddleCollision(gameBall, gamePaddle);
   ballBrickCollision(gameBall, gameBrick, gameBrickwall);
 }
 startGame();
+// setInterval(startGame, 1000); // Utilisé pour vérifier certains paramètres et éviter que l'ordinateur ne s'emballe si (quand...) il y a une couille.

@@ -1,3 +1,7 @@
+:root {
+  --width: 100vw;
+  --height: 100vh;
+}
 *,
 *::after,
 *::before {
@@ -6,16 +10,48 @@
 
 body {
   align-items: center;
-  background-color: bisque;
+  background-image: linear-gradient(#a68d72, #f2dabf, #fff1e3);
   display: flex;
   justify-content: center;
-  height: 100vh;
+  height: var(--height);
   margin: 0;
-  width: 100vw;
+  width: var(--width);
 }
 
 #gameCanvas {
-  background-color: white /*#bea891*/;
   border: 1px solid black;
   margin: 10px;
+}
+
+#resume {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+body div {
+  display: flex;
+  position: absolute;
+  justify-content: center;
+  align-items: center;
+}
+
+#start {
+  display: none;
+}
+#end {
+  /* display: none; */
+  position: relative;
+  width: 30%;
+  height: 15%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#start span,
+#end span {
+  position: absolute;
+  top: 0px;
+  right: 0px;
 }
