@@ -19,12 +19,11 @@ const ctx = canvas.getContext("2d");
 let canvasPadding = 10;
 let gamePaddle = createPaddle();
 let gameBall = createBall();
-let gameBrick = createBricks();
 let gameBrickwall = createBrickwall();
+let gameBrick = createBricks(gameBrickwall);
 let rightArrow = false;
 let leftArrow = false;
 let spaceBar = false;
-let bubblesArray = [];
 
 // Tous les événements permettant d'écouter les touches du clavier :
 
@@ -65,78 +64,89 @@ function createPaddle() {
   paddle.posY = canvas.height - paddle.height - canvasPadding * 3;
   paddle.velX = 5;
   return paddle;
+  // Used to create gamePaddle;
 }
 
 function createBall() {
   let ball = {};
   ball.radius = 10;
-  ball.dirX = (Math.random() - 0.5) * 3;
+  ball.dirX = (Math.random() - 0.5) * 5;
   ball.dirY = -3;
   ball.posX = gamePaddle.posX + gamePaddle.width / 2;
   ball.posY = gamePaddle.posY - ball.radius + 1;
   return ball;
+  // Used to create gameBall;
 }
 
-function createBricks() {
+function createBrickwall() {
+  let brickwall = {};
+  brickwall.rowCount = 7;
+  brickwall.colCount = 10;
+  return brickwall;
+  // Used to create gameBrickwall;
+}
+
+function createBricks(brickwallObject) {
   let brick = {};
-  brick.width = 100; //(canvas.width - canvasPadding * 2) / 10;
-  brick.height = 30; //(canvas.height - canvasPadding * 2) / 20;
-  brick.padding = 15;
+  brick.width = 100;
+  brick.height = 30;
+  brick.padding = 3;
   brick.posX = 0;
   brick.posY = 0;
-  brick.status = 1;
-  brick.offset = 33;
+  brick.offsetTop = 50;
+  brick.offsetLeft =
+    (canvas.width - (brick.width + brick.padding) * brickwallObject.colCount) /
+    2;
   return brick;
   // Used to create gameBrick;
 }
 
-function createBrickwall() {
-  let Brickwall = {};
-  Brickwall.bricksArray = [];
-  Brickwall.rowCount = 7;
-  Brickwall.colCount = 10;
-  return Brickwall;
-  // Used to create gameBrickwall;
-}
+// let bubblesArray = [];
 
-function createBubbles() {
-  const bubble = {};
-  bubble.radius = Math.random() * 20 + 10;
-  bubble.x = Math.random() * (canvas.width - bubble.radius * 2) + bubble.radius;
-  bubble.y =
-    Math.random() * (canvas.height - bubble.radius * 2) + bubble.radius;
-  bubble.speedX = (Math.random() - 0.5) * 8;
-  bubble.speedY = (Math.random() - 0.5) * 8;
-  bubble.maxRadius = Math.random() * 99 + 25;
-  bubble.draw = function () {
-    ctx.beginPath();
-    ctx.arc(bubble.x, bubble.y, bubble.radius, 0, Math.PI * 2);
-    // ctx.fillStyle = //insert color for bubbles
-    ctx.fill();
-  };
-  bubble.move = function () {
-    if (
-      bubble.x + bubble.radius >= canvas.width ||
-      bubble.x - bubble.radius <= 0
-    ) {
-      bubble.speedX *= -1;
-    }
-    if (
-      bubble.y + bubble.radius >= canvas.height ||
-      bubble.y - bubble.radius <= 0
-    ) {
-      bubble.speedY *= -1;
-    }
-    bubble.x += bubble.speedX;
-    bubble.y += bubble.speedY;
-  };
-  return bubble;
-}
+// function createBubbles() {
+//   const bubble = {};
+//   bubble.radius = Math.random() * 20 + 10;
+//   bubble.x = Math.random() * (canvas.width - bubble.radius * 2) + bubble.radius;
+//   bubble.y =
+//     Math.random() * (canvas.height - bubble.radius * 2) + bubble.radius;
+//   bubble.speedX = (Math.random() - 0.5) * 8;
+//   bubble.speedY = (Math.random() - 0.5) * 8;
+//   bubble.maxRadius = Math.random() * 99 + 25;
 
-for (let i = 0; i < 20; i++) {
-  bubblesArray.push(createBubbles());
-  bubblesArray[i].draw();
-}
+//   bubble.draw = function () {
+//     ctx.beginPath();
+//     ctx.arc(bubble.x, bubble.y, bubble.radius, 0, Math.PI * 2);
+//     ctx.fillStyle = "purple";
+//     ctx.fill();
+//   };
+
+//   bubble.move = function () {
+//     if (
+//       bubble.x + bubble.radius >= canvas.width ||
+//       bubble.x - bubble.radius <= 0
+//     ) {
+//       bubble.speedX *= -1;
+//     }
+
+//     if (
+//       bubble.y + bubble.radius >= canvas.height ||
+//       bubble.y - bubble.radius <= 0
+//     ) {
+//       bubble.speedY *= -1;
+//     }
+//     bubble.x += bubble.speedX;
+//     bubble.y += bubble.speedY;
+//   };
+//   return bubble;
+//   // Used to create all the bubbles, draw them and make them move on the screen;
+// }
+
+// (function drawBubbles() {
+//   for (let i = 0; i < 20; i++) {
+//     bubblesArray.push(createBubbles());
+//     bubblesArray[i].draw();
+//   }
+// })();
 
 // Les fonctions de dessin d'objets :
 
@@ -150,6 +160,7 @@ function drawPaddle(paddleObject) {
   );
   ctx.fillStyle = "red";
   ctx.fill();
+  ctx.closePath();
 }
 
 function drawBall(ballObject) {
@@ -157,24 +168,42 @@ function drawBall(ballObject) {
   ctx.arc(ballObject.posX, ballObject.posY, ballObject.radius, 0, Math.PI * 2);
   ctx.fillStyle = "blue";
   ctx.fill();
+  ctx.closePath();
 }
+
+/* Code snippet found at https://developer.mozilla.org/en-US/docs/Games/Tutorials/2D_Breakout_game_pure_JavaScript/Build_the_brick_field 
+I couldn't find any way around this. Trying to insert this snippet somewhere inside my code was extremely troublesome... */
+let bricksArray = [];
+for (let r = 0; r < gameBrickwall.rowCount; r++) {
+  bricksArray[r] = [];
+  for (let c = 0; c < gameBrickwall.colCount; c++) {
+    bricksArray[r][c] = {
+      x: 0,
+      y: 0,
+      state: true,
+    };
+  }
+}
+/* Code snippet found at https://developer.mozilla.org/en-US/docs/Games/Tutorials/2D_Breakout_game_pure_JavaScript/Build_the_brick_field */
 
 function drawBrickwall(brickwallObject, brickObject) {
   for (let r = 0; r < brickwallObject.rowCount; r++) {
-    brickwallObject.bricksArray[r] = [];
     for (let c = 0; c < brickwallObject.colCount; c++) {
-      let brickPosX =
-        c * (brickObject.width + brickObject.padding) + brickObject.offset;
-      let brickPosY =
-        r * (brickObject.height + brickObject.padding) + brickObject.offset;
-      brickwallObject.bricksArray[r][c] = {
-        x: brickPosX,
-        y: brickPosY,
-      };
-      ctx.beginPath();
-      ctx.rect(brickPosX, brickPosY, brickObject.width, brickObject.height);
-      ctx.fillStyle = "green";
-      ctx.fill();
+      if (bricksArray[r][c].state === true) {
+        let brickPosX =
+          c * (brickObject.width + brickObject.padding) +
+          brickObject.offsetLeft;
+        let brickPosY =
+          r * (brickObject.height + brickObject.padding) +
+          brickObject.offsetTop;
+        bricksArray[r][c].x = brickPosX;
+        bricksArray[r][c].y = brickPosY;
+        ctx.beginPath();
+        ctx.rect(brickPosX, brickPosY, brickObject.width, brickObject.height);
+        ctx.fillStyle = "green";
+        ctx.fill();
+        ctx.closePath();
+      }
     }
   }
 }
@@ -211,6 +240,13 @@ function moveBall(ballObject) {
   // On ajoutera ici la condition qui fait que si la balle touche une brique / bulle, sa vélocité augmente de 0.05... démoniaque *,..,*
 }
 
+function moveBubbles() {
+  bubblesArray.forEach((bubble) => {
+    bubble.draw();
+    bubble.move();
+  });
+}
+
 // Les fonctions qui gèrent les collisions :
 
 function ballPaddleCollision(ballObject, paddleObject) {
@@ -224,6 +260,25 @@ function ballPaddleCollision(ballObject, paddleObject) {
   }
 }
 
+function ballBrickCollision(ballObject, brickObject, brickwallObject) {
+  for (let r = 0; r < brickwallObject.rowCount; r++) {
+    for (let c = 0; c < brickwallObject.colCount; c++) {
+      let bricks = bricksArray[r][c];
+      if (
+        ballObject.posY + ballObject.radius > bricks.y &&
+        ballObject.posY - ballObject.radius < bricks.y + brickObject.height &&
+        ballObject.posX > bricks.x &&
+        ballObject.posX < bricks.x + brickObject.width
+      ) {
+        ballObject.dirY *= -1;
+        bricks.state = false;
+        bricks.x = 0;
+        bricks.y = 0;
+      }
+    }
+  }
+}
+
 // setInterval(startGame, 1000); // Utilisé pour vérifier certains paramètres.
 function startGame() {
   requestAnimationFrame(startGame);
@@ -233,11 +288,8 @@ function startGame() {
   drawBall(gameBall);
   movePaddle(gamePaddle);
   moveBall(gameBall);
+  // moveBubbles();
   ballPaddleCollision(gameBall, gamePaddle);
-  // ballBrickCollision(gameBall, gameBrick)
-  // bubblesArray.forEach((bubble) => {
-  //   bubble.draw();
-  //   bubble.move();
-  // });
+  ballBrickCollision(gameBall, gameBrick, gameBrickwall);
 }
 startGame();
