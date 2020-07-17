@@ -1,7 +1,3 @@
-const canvas = document.getElementById("gameCanvas");
-canvas.width = 1200;
-canvas.height = 900;
-const ctx = canvas.getContext("2d");
 /*******************DEVELOPMENT ROADMAP*******************/
 
 /*********************FEATURES ADDED*********************/
@@ -15,26 +11,42 @@ const ctx = canvas.getContext("2d");
 
 // Gérer les collisions (entre la balle et le paddle et entre la balle et les briques) ; OK
 
+// Télécharger une image pour le paddle;
+
+// Télécharger une image pour les briques;
+
 // Créer les conditions de victoire (si toutes les briques ont été détruites) et de défaite (si la balle tombe derrière le paddle) ; OK
 
+// Dessiner le score et implémenter sa fonctionnalité; OK
+
+// Créer la boîte de dialogue qui s'ouvre pour recommencer la partie ou télécharger le CV en cas de victoire OU en cas de GAME OVER; OK
+
+// Ajouter l'image de fond qui comprend mes différentes compétences ; cette image sera placée derrière le mur de briques ; OK
+
+// Ajouter un bouton de téléchargement dans la page index pour permettre le téléchargement du CV sans passer par le jeu; OK
+
 /*******************FEATURES TO BE ADDED*******************/
-// Dessiner l'image du score ;
-// Créer la boîte de dialogue qui s'ouvre pour recommencer la partie ou télécharger le CV en cas de victoire OU en cas de GAME OVER;
-// Créer un bouton START qui apparaîtra avant le lancement du jeu et qui lancera le jeu (les contrôles du jeu seront expliqués dans cette boîte de dialogue, en dessous du message START);
-// Ajouter l'image de fond qui comprend mes différentes compétences ; cette image sera placée derrière le mur de briques ;
-// Ajouter l'image de background pour le gameCanvas ;
+// Créer la page web dans laquelle sera implémentée le jeu;
 
 /**********************BONUS FEATURES**********************/
 // Implémenter les fonctionnalités des bulles rouges et bleues (optionnel);
 // Implémenter la vectorisation des trajectoires de la balle (optionnel);
+// Implémenter les changements de trajectoire de l'axe X de la balle si elle touche un côté des briques;
+// Implémenter des effets sonores;
 
 /*****************************************************************/
+const canvas = document.getElementById("gameCanvas");
+canvas.width = 1200;
+canvas.height = 900;
+const ctx = canvas.getContext("2d");
 
 let canvasPadding = 10;
 let paddleImg = new Image();
 paddleImg.src = "images/wooden-paddle.png";
 let brickImg = new Image();
 brickImg.src = "images/one-yellow-brick-130-52.png";
+let skills = new Image();
+skills.src = "images/skills.png";
 let gamePaddle = createPaddle();
 let gameBall = createBall();
 let gameBrickwall = createBrickwall();
@@ -45,9 +57,13 @@ let rightArrow = false;
 let leftArrow = false;
 let spaceBar = false;
 let score = 0;
-let restartDiv = document.getElementById("end");
+let winDiv = document.getElementById("winDiv");
+let loseDiv = document.getElementById("loseDiv");
+let startButton = document.getElementById("start");
+let downloadButton = document.getElementsByClassName("download");
+let restartButton = document.getElementsByClassName("restart");
 
-// Tous les événements permettant d'écouter les touches du clavier :
+// Tous les événements d'écoute :
 
 window.addEventListener("keydown", (event) => {
   if (event.key === "ArrowLeft") {
@@ -76,12 +92,24 @@ window.addEventListener("keydown", (event) => {
   }
 });
 
+for (let i = 0; i < restartButton.length; i++) {
+  restartButton[i].addEventListener("click", () => {
+    window.location.reload();
+  });
+}
+
+for (let i = 0; i < downloadButton.length; i++) {
+  downloadButton[i].addEventListener("click", () => {
+    window.open("./resume.html", "_self");
+  });
+}
+
 // Les fonctions créatrices d'objet :
 
 function createPaddle() {
   let paddle = {};
   paddle.width = 97;
-  paddle.height = 13;
+  paddle.height = 14;
   paddle.posX = (canvas.width - paddle.width) * 0.5;
   paddle.posY = canvas.height - paddle.height - canvasPadding * 3;
   paddle.velX = 5;
@@ -91,22 +119,19 @@ function createPaddle() {
 
 function createBall() {
   let ball = {};
-  ball.radius = 15;
+  ball.radius = 12;
   ball.dirX = (Math.random() - 0.5) * 5;
   ball.dirY = -3;
   ball.posX = gamePaddle.posX + gamePaddle.width / 2;
-  ball.posY = gamePaddle.posY - ball.radius + 1;
+  ball.posY = gamePaddle.posY - ball.radius;
   return ball;
   // Used to create gameBall;
 }
 
 function createBrickwall() {
   let brickwall = {};
-  // brickwall.rowCount = 1;
-  // brickwall.colCount = 1;
   brickwall.rowCount = 6;
-  brickwall.colCount = 9;
-  brickwall.bricksArray = [];
+  brickwall.colCount = 5;
   return brickwall;
   // Used to create gameBrickwall;
 }
@@ -142,7 +167,7 @@ function createBubbles(color) {
     if (bubble.state === true) {
       ctx.beginPath();
       ctx.arc(bubble.x, bubble.y, bubble.radius, 0, Math.PI * 2);
-      ctx.fillStyle = color;
+      ctx.fillStyle = `rgba(${color}, 0.5)`;
       ctx.fill();
     }
   };
@@ -168,15 +193,6 @@ function createBubbles(color) {
   // Used to create all the bubbles, draw them and make them move on the screen;
 }
 
-(function drawBubbles() {
-  for (let i = 0; i < 5; i++) {
-    speedBubblesArray.push(createBubbles("red"));
-  }
-  for (let j = 0; j < 5; j++) {
-    slowBubblesArray.push(createBubbles("blue"));
-  }
-})();
-
 // Les fonctions de dessin d'objets :
 
 function drawPaddle(paddleObject) {
@@ -191,16 +207,6 @@ function drawPaddle(paddleObject) {
     paddleObject.width,
     paddleObject.height
   );
-  // ctx.beginPath();
-  // ctx.rect(
-  //   paddleObject.posX,
-  //   paddleObject.posY,
-  //   paddleObject.width,
-  //   paddleObject.height
-  // );
-  // ctx.fillStyle = "#A68D72";
-  // ctx.fill();
-  // ctx.closePath();
 }
 
 function drawBall(ballObject) {
@@ -212,7 +218,7 @@ function drawBall(ballObject) {
 }
 
 /* Code snippet found at https://developer.mozilla.org/en-US/docs/Games/Tutorials/2D_Breakout_game_pure_JavaScript/Build_the_brick_field
-I couldn't find any way around this. Trying to insert this snippet somewhere inside my code was extremely troublesome because the bricksArray, if defined as a property of the object gameBrickwall, wouldn't be accessible from the global scope, therefore causing issues. */
+  I couldn't find any way around this. Trying to insert this snippet somewhere inside my code was extremely troublesome because the bricksArray, if defined as a property of the object gameBrickwall, wouldn't be accessible from the global scope, therefore causing issues. */
 let bricksArray = [];
 for (let r = 0; r < gameBrickwall.rowCount; r++) {
   bricksArray[r] = [];
@@ -254,7 +260,27 @@ function drawBrickwall(brickwallObject, brickObject) {
   }
 }
 
-// Les fonctions qui gèrent les déplacements :
+function drawSkills() {
+  ctx.beginPath();
+  ctx.drawImage(skills, canvas.width / 2 - 280, 55, 560, 315);
+  ctx.globalCompositeOperation = "destination-over";
+}
+
+function drawScore() {
+  ctx.font = "bold 40px Helvetica, Arial, sans-serif";
+  ctx.strokeText(`Score: ${score}`, canvas.width - 190, 40);
+}
+
+(function drawBubbles() {
+  for (let i = 0; i < 5; i++) {
+    speedBubblesArray.push(createBubbles("217, 68, 54"));
+  }
+  for (let j = 0; j < 5; j++) {
+    slowBubblesArray.push(createBubbles("83, 126, 255"));
+  }
+})();
+
+// Les fonctions qui gèrent les mouvements :
 
 function movePaddle(paddleObject) {
   if (leftArrow && paddleObject.posX > 0) {
@@ -275,11 +301,11 @@ function moveBall(ballObject) {
     ballObject.posY += ballObject.dirY;
   }
   if (
-    ballObject.posX + ballObject.radius >= canvas.width ||
-    ballObject.posX - ballObject.radius <= 0
+    ballObject.posX + ballObject.radius > canvas.width ||
+    ballObject.posX - ballObject.radius < 0
   ) {
     ballObject.dirX *= -1;
-  } else if (ballObject.posY - ballObject.radius <= 0) {
+  } else if (ballObject.posY - ballObject.radius < 0) {
     ballObject.dirY *= -1;
   }
 
@@ -301,74 +327,64 @@ function moveBubbles() {
 
 function ballPaddleCollision(ballObject, paddleObject) {
   if (
-    ballObject.posX > paddleObject.posX &&
-    ballObject.posX < paddleObject.posX + paddleObject.width &&
-    ballObject.posY + ballObject.radius ===
-      paddleObject.posY + paddleObject.height
+    ballObject.posX + ballObject.radius > paddleObject.posX &&
+    ballObject.posX - ballObject.radius <
+      paddleObject.posX + paddleObject.width &&
+    ballObject.posY === paddleObject.posY
   ) {
     ballObject.dirY *= -1;
   }
 }
+/* In the code below, I used the help of MDN in order to solve a bug that I had. I used to say that when a brick is hit, it's state becomes false and it's x and y coordinates become 0. However, I later found out that this caused a bug that made the score be exponentially incremented everytime the ball would hit the upper edge of the canvas between positions {x: 0, y: 0} and something like {x: 100, y:0} (I realized this was due to the fact that the bricks were not removed from the canvas, but placed at {x:0, y:0} of the canvas while still retaining their width. The more bricks the ball "destroyed", the more the score was incremented). Removing the lines that changed the coordinates of the bricks and adding a conditional statement before drawing the bricks, saying that they shouldn't exist on the canvas if their status is not true, solved the problem.*/
 
 function ballBrickCollision(ballObject, brickObject, brickwallObject) {
   for (let r = 0; r < brickwallObject.rowCount; r++) {
     for (let c = 0; c < brickwallObject.colCount; c++) {
       let bricks = bricksArray[r][c];
-      if (
-        ballObject.posY + ballObject.radius > bricks.y &&
-        ballObject.posY - ballObject.radius < bricks.y + brickObject.height &&
-        ballObject.posX > bricks.x &&
-        ballObject.posX < bricks.x + brickObject.width
-      ) {
-        ballObject.dirY *= -1;
-        bricks.state = false;
-        bricks.x = 0;
-        bricks.y = 0;
-        score += 1;
+      if (bricks.state === true) {
+        if (
+          ballObject.posY > bricks.y &&
+          ballObject.posY < bricks.y + brickObject.height &&
+          ballObject.posX > bricks.x &&
+          ballObject.posX < bricks.x + brickObject.width
+        ) {
+          ballObject.dirY *= -1;
+          bricks.state = false;
+          // bricks.x = 0;
+          // bricks.y = 0;
+          score++;
+        }
       }
     }
   }
 }
+// Fonction pour définir la victoire ou la défaite
 
-// Fonctions pour définir la victoire ou la défaite ainsi que le score
-
-function checkWinOrLose(ballObject, brickwallObject, paddleObject) {
+function checkWinOrLose(ballObject, brickwallObject) {
   if (score === brickwallObject.rowCount * brickwallObject.colCount) {
-    let questionWin = confirm(
-      `Bravo ! You win! 您赢了! Recommencer ? Restart ? 重新开始吗？Appuyez sur "Annuler" pour télécharger mon CV. Press "Cancel" to download my resume. 请点击“取消”下载我的简历。 `
-    );
-    if (questionWin) {
-      window.location.reload();
-    }
+    winDiv.style.display = "flex";
+    canvas.style.display = "none";
   }
-  // else if (
-  //   ballObject.posY + ballObject.radius >
-  //   paddleObject.posY + paddleObject.height
-  // ) {
-  //   let questionLose = confirm(
-  //     `Perdu. You lose. 您输了。Recommencer ? Restart ? 重新开始吗？Appuyez sur "Annuler" pour télécharger mon CV. Press "Cancel" to download my resume. 请点击“取消”下载我的简历。 `
-  //   );
-  //   if (question) {
-  //     window.location.reload();
-  //   }
-  //  else {
-  //   window.location = "resume.html";
-  // }
-  // }
+  if (ballObject.posY + ballObject.radius > canvas.height) {
+    loseDiv.style.display = "flex";
+    canvas.style.display = "none";
+  }
 }
 
 function startGame() {
   requestAnimationFrame(startGame);
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  checkWinOrLose(gameBall, gameBrickwall, gamePaddle);
+  checkWinOrLose(gameBall, gameBrickwall);
   drawBrickwall(gameBrickwall, gameBrick);
   drawPaddle(gamePaddle);
   drawBall(gameBall);
+  drawSkills(gameBrick, gameBrickwall);
+  drawScore();
   movePaddle(gamePaddle);
   moveBall(gameBall);
   moveBubbles();
   ballPaddleCollision(gameBall, gamePaddle);
   ballBrickCollision(gameBall, gameBrick, gameBrickwall);
 }
-startGame();
 // setInterval(startGame, 1000); // Utilisé pour vérifier certains paramètres et éviter que l'ordinateur ne s'emballe si (quand...) il y a une couille.
+startGame();

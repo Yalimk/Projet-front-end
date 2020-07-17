@@ -8,18 +8,24 @@
     <title>Premier projet IFOCOP DIWJS 13</title>
   </head>
   <body>
-    <div>
-      <div id="start">
-        <button id="startButton">START</button>
-        <div>x</div>
-      </div>
+    <button class="download" id="directDL">Mon CV</button>
+    <div class="myDiv" id="winDiv">
+      <p>
+        <span>Bravo, vous avez gagné !</span> <br />
+        Vous pouvez cliquer sur RESTART pour relancer une partie, ou cliquer sur
+        CV pour voir et télécharger mon CV au format PDF.
+      </p>
+      <button class="download">CV</button>
+      <button class="restart">RESTART</button>
     </div>
-    <div>
-      <div id="end">
-        <button id="restartButton">RESTART</button
-        ><button id="restartButton">DOWNLOAD</button>
-        <div>x</div>
-      </div>
+    <div class="myDiv" id="loseDiv">
+      <p>
+        <span>Aïe ! Perdu...</span> <br />
+        Vous pouvez cliquer sur RESTART pour relancer une partie, ou cliquer sur
+        CV pour voir et télécharger mon CV au format PDF.
+      </p>
+      <button class="download">CV</button>
+      <button class="restart">RESTART</button>
     </div>
     <canvas id="gameCanvas"></canvas>
   </body>
