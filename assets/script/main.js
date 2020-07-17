@@ -131,7 +131,7 @@ function createBall() {
 function createBrickwall() {
   let brickwall = {};
   brickwall.rowCount = 6;
-  brickwall.colCount = 5;
+  brickwall.colCount = 7;
   return brickwall;
   // Used to create gameBrickwall;
 }
@@ -167,7 +167,7 @@ function createBubbles(color) {
     if (bubble.state === true) {
       ctx.beginPath();
       ctx.arc(bubble.x, bubble.y, bubble.radius, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(${color}, 0.5)`;
+      ctx.fillStyle = `rgba(${color}, 0.3)`;
       ctx.fill();
     }
   };
@@ -268,14 +268,15 @@ function drawSkills() {
 
 function drawScore() {
   ctx.font = "bold 40px Helvetica, Arial, sans-serif";
-  ctx.strokeText(`Score: ${score}`, canvas.width - 190, 40);
+  ctx.fillStyle = "#BFE5F2";
+  ctx.fillText(`Score: ${score}`, canvas.width - 190, 40);
 }
 
 (function drawBubbles() {
-  for (let i = 0; i < 5; i++) {
+  for (let i = 0; i < 10; i++) {
     speedBubblesArray.push(createBubbles("217, 68, 54"));
   }
-  for (let j = 0; j < 5; j++) {
+  for (let j = 0; j < 10; j++) {
     slowBubblesArray.push(createBubbles("83, 126, 255"));
   }
 })();
