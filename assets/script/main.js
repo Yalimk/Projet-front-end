@@ -2,7 +2,9 @@
 
 /*********************FEATURES ADDED*********************/
 // Dessiner le paddle (un rectangle plein) ; OK
+
 // Gérer les mouvements du paddle (de gauche à droite, et en empêchant qu'il ne sorte du canvas) ; OK
+
 // Dessiner la balle (elle est ronde, à l'évidence, et pleine) ; OK
 
 // Créer les mouvements de la balle (doit rebondir contre toutes les paroies sauf celle du bas, et doit également rebondir contre le paddle) ; OK
@@ -11,9 +13,9 @@
 
 // Gérer les collisions (entre la balle et le paddle et entre la balle et les briques) ; OK
 
-// Télécharger une image pour le paddle;
+// Télécharger une image pour le paddle (optionnel); OK
 
-// Télécharger une image pour les briques;
+// Télécharger une image pour les briques (optionnel); OK
 
 // Créer les conditions de victoire (si toutes les briques ont été détruites) et de défaite (si la balle tombe derrière le paddle) ; OK
 
@@ -25,43 +27,72 @@
 
 // Ajouter un bouton de téléchargement dans la page index pour permettre le téléchargement du CV sans passer par le jeu; OK
 
+// Implémenter des effets sonores (optionnel); OK
+
 /*******************FEATURES TO BE ADDED*******************/
-// Créer la page web dans laquelle sera implémentée le jeu;
+// Créer les pages web dans lesquelles sera implémenté le jeu;
 
 /**********************BONUS FEATURES**********************/
 // Implémenter les fonctionnalités des bulles rouges et bleues (optionnel);
-// Implémenter la vectorisation des trajectoires de la balle (optionnel);
-// Implémenter les changements de trajectoire de l'axe X de la balle si elle touche un côté des briques;
-// Implémenter des effets sonores;
+// Implémenter les changements de trajectoire de l'axe X de la balle si elle touche un côté des briques (optionnel); je laisse tomber cette fonctionnalité bonus ; trop casse-tête.
 
 /*****************************************************************/
+// Canvas definition
 const canvas = document.getElementById("gameCanvas");
-canvas.width = 1200;
+canvas.width = 900;
 canvas.height = 900;
 const ctx = canvas.getContext("2d");
 
-let canvasPadding = 10;
+// Images
 let paddleImg = new Image();
 paddleImg.src = "images/wooden-paddle.png";
 let brickImg = new Image();
 brickImg.src = "images/one-yellow-brick-130-52.png";
 let skills = new Image();
-skills.src = "images/skills.png";
+skills.src = "images/skills-mini.png";
+
+// Sounds
+let winSound = document.createElement("audio");
+winSound.src = "./sounds/win.mp3";
+winSound.state = true;
+let loseSound = document.createElement("audio");
+loseSound.src = "./sounds/lose.mp3";
+loseSound.state = true;
+
+// Objects
 let gamePaddle = createPaddle();
-let gameBall = createBall();
+let gameBall = createBall(gamePaddle);
 let gameBrickwall = createBrickwall();
 let gameBrick = createBricks(gameBrickwall);
-let speedBubblesArray = [];
-let slowBubblesArray = [];
+let bubblesArray = [];
 let rightArrow = false;
 let leftArrow = false;
 let spaceBar = false;
 let score = 0;
+
+// Interface elements
 let winDiv = document.getElementById("winDiv");
 let loseDiv = document.getElementById("loseDiv");
-let startButton = document.getElementById("start");
 let downloadButton = document.getElementsByClassName("download");
 let restartButton = document.getElementsByClassName("restart");
+
+/* 
+Code snippet found at https://developer.mozilla.org/en-US/docs/Games/Tutorials/2D_Breakout_game_pure_JavaScript/Build_the_brick_field. I couldn't find any way around this. Trying to insert this snippet somewhere inside my code was extremely troublesome because the bricksArray object, if defined as a property of the object gameBrickwall, wouldn't be accessible from the global scope, therefore causing issues. 
+*/
+let bricksArray = [];
+for (let r = 0; r < gameBrickwall.rowCount; r++) {
+  bricksArray[r] = [];
+  for (let c = 0; c < gameBrickwall.colCount; c++) {
+    bricksArray[r][c] = {
+      x: 0,
+      y: 0,
+      state: true,
+    };
+  }
+}
+/*
+End of code snippet from MDN.
+*/
 
 // Tous les événements d'écoute :
 
@@ -92,6 +123,10 @@ window.addEventListener("keydown", (event) => {
   }
 });
 
+window.addEventListener("mousemove", (event) => {
+  // console.log(event.clientX, event.clientY);
+});
+
 for (let i = 0; i < restartButton.length; i++) {
   restartButton[i].addEventListener("click", () => {
     window.location.reload();
@@ -111,19 +146,19 @@ function createPaddle() {
   paddle.width = 97;
   paddle.height = 14;
   paddle.posX = (canvas.width - paddle.width) * 0.5;
-  paddle.posY = canvas.height - paddle.height - canvasPadding * 3;
+  paddle.posY = canvas.height - paddle.height - 30;
   paddle.velX = 5;
   return paddle;
   // Used to create gamePaddle;
 }
 
-function createBall() {
+function createBall(paddleObject) {
   let ball = {};
   ball.radius = 12;
   ball.dirX = (Math.random() - 0.5) * 5;
   ball.dirY = -3;
-  ball.posX = gamePaddle.posX + gamePaddle.width / 2;
-  ball.posY = gamePaddle.posY - ball.radius;
+  ball.posX = paddleObject.posX + paddleObject.width / 2;
+  ball.posY = paddleObject.posY - ball.radius;
   return ball;
   // Used to create gameBall;
 }
@@ -131,7 +166,7 @@ function createBall() {
 function createBrickwall() {
   let brickwall = {};
   brickwall.rowCount = 6;
-  brickwall.colCount = 7;
+  brickwall.colCount = 5;
   return brickwall;
   // Used to create gameBrickwall;
 }
@@ -140,10 +175,10 @@ function createBricks(brickwallObject) {
   let brick = {};
   brick.width = 130;
   brick.height = 52;
-  brick.padding = 3;
+  brick.padding = 10;
   brick.posX = 0;
   brick.posY = 0;
-  brick.offsetTop = 50;
+  brick.offsetTop = 53;
   brick.offsetLeft =
     (canvas.width - (brick.width + brick.padding) * brickwallObject.colCount) /
       2 +
@@ -167,7 +202,7 @@ function createBubbles(color) {
     if (bubble.state === true) {
       ctx.beginPath();
       ctx.arc(bubble.x, bubble.y, bubble.radius, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(${color}, 0.3)`;
+      ctx.fillStyle = `rgba(${color})`;
       ctx.fill();
     }
   };
@@ -189,6 +224,8 @@ function createBubbles(color) {
     bubble.x += bubble.speedX;
     bubble.y += bubble.speedY;
   };
+
+  bubble.grow = function () {};
   return bubble;
   // Used to create all the bubbles, draw them and make them move on the screen;
 }
@@ -212,25 +249,10 @@ function drawPaddle(paddleObject) {
 function drawBall(ballObject) {
   ctx.beginPath();
   ctx.arc(ballObject.posX, ballObject.posY, ballObject.radius, 0, Math.PI * 2);
-  ctx.fillStyle = "#6294A6";
+  ctx.fillStyle = "#4E94BF";
   ctx.fill();
   ctx.closePath();
 }
-
-/* Code snippet found at https://developer.mozilla.org/en-US/docs/Games/Tutorials/2D_Breakout_game_pure_JavaScript/Build_the_brick_field
-  I couldn't find any way around this. Trying to insert this snippet somewhere inside my code was extremely troublesome because the bricksArray, if defined as a property of the object gameBrickwall, wouldn't be accessible from the global scope, therefore causing issues. */
-let bricksArray = [];
-for (let r = 0; r < gameBrickwall.rowCount; r++) {
-  bricksArray[r] = [];
-  for (let c = 0; c < gameBrickwall.colCount; c++) {
-    bricksArray[r][c] = {
-      x: 0,
-      y: 0,
-      state: true,
-    };
-  }
-}
-/* Code snippet found at https://developer.mozilla.org/en-US/docs/Games/Tutorials/2D_Breakout_game_pure_JavaScript/Build_the_brick_field */
 
 function drawBrickwall(brickwallObject, brickObject) {
   for (let r = 0; r < brickwallObject.rowCount; r++) {
@@ -262,37 +284,36 @@ function drawBrickwall(brickwallObject, brickObject) {
 
 function drawSkills() {
   ctx.beginPath();
-  ctx.drawImage(skills, canvas.width / 2 - 280, 55, 560, 315);
+  ctx.drawImage(skills, canvas.width / 2 - 183, 63, 366, 305);
   ctx.globalCompositeOperation = "destination-over";
 }
 
 function drawScore() {
-  ctx.font = "bold 40px Helvetica, Arial, sans-serif";
-  ctx.fillStyle = "#BFE5F2";
-  ctx.fillText(`Score: ${score}`, canvas.width - 190, 40);
+  ctx.font = "40px Helvetica, Arial, sans-serif";
+  ctx.fillStyle = "#cdd973";
+  ctx.fillText(`Score: ${score}`, canvas.width - 180, 40);
 }
 
 (function drawBubbles() {
-  for (let i = 0; i < 10; i++) {
-    speedBubblesArray.push(createBubbles("217, 68, 54"));
-  }
-  for (let j = 0; j < 10; j++) {
-    slowBubblesArray.push(createBubbles("83, 126, 255"));
+  for (let i = 0; i < 20; i++) {
+    bubblesArray.push(createBubbles("187, 217, 78, 0.3"));
   }
 })();
 
 // Les fonctions qui gèrent les mouvements :
 
 function movePaddle(paddleObject) {
-  if (leftArrow && paddleObject.posX > 0) {
-    rightArrow = false;
-    paddleObject.posX -= paddleObject.velX;
-  } else if (
-    rightArrow &&
-    paddleObject.posX + paddleObject.width < canvas.width
-  ) {
-    leftArrow = false;
-    paddleObject.posX += paddleObject.velX;
+  if (spaceBar) {
+    if (leftArrow && paddleObject.posX > 0) {
+      rightArrow = false;
+      paddleObject.posX -= paddleObject.velX;
+    } else if (
+      rightArrow &&
+      paddleObject.posX + paddleObject.width < canvas.width
+    ) {
+      leftArrow = false;
+      paddleObject.posX += paddleObject.velX;
+    }
   }
 }
 
@@ -301,12 +322,15 @@ function moveBall(ballObject) {
     ballObject.posX += ballObject.dirX;
     ballObject.posY += ballObject.dirY;
   }
+
   if (
     ballObject.posX + ballObject.radius > canvas.width ||
     ballObject.posX - ballObject.radius < 0
   ) {
     ballObject.dirX *= -1;
-  } else if (ballObject.posY - ballObject.radius < 0) {
+  }
+
+  if (ballObject.posY - ballObject.radius < 0) {
     ballObject.dirY *= -1;
   }
 
@@ -314,13 +338,9 @@ function moveBall(ballObject) {
 }
 
 function moveBubbles() {
-  slowBubblesArray.forEach((blueBubble) => {
-    blueBubble.draw();
-    blueBubble.move();
-  });
-  speedBubblesArray.forEach((redBubble) => {
-    redBubble.draw();
-    redBubble.move();
+  bubblesArray.forEach((bubble) => {
+    bubble.draw();
+    bubble.move();
   });
 }
 
@@ -328,15 +348,27 @@ function moveBubbles() {
 
 function ballPaddleCollision(ballObject, paddleObject) {
   if (
-    ballObject.posX + ballObject.radius > paddleObject.posX &&
-    ballObject.posX - ballObject.radius <
-      paddleObject.posX + paddleObject.width &&
-    ballObject.posY === paddleObject.posY
+    ballObject.posX > paddleObject.posX &&
+    ballObject.posX < paddleObject.posX + paddleObject.width &&
+    ballObject.posY + ballObject.radius > paddleObject.posY
   ) {
     ballObject.dirY *= -1;
+    if (
+      (ballObject.posX > paddleObject.posX &&
+        ballObject.posX < paddleObject.posX + paddleObject.width / 2 &&
+        ballObject.dirX > 0) ||
+      (ballObject.posX < paddleObject.posX + paddleObject.width &&
+        ballObject.posX > paddleObject.posX + paddleObject.width / 2 &&
+        ballObject.dirX < 0)
+    ) {
+      ballObject.dirX *= -1;
+    }
   }
 }
-/* In the code below, I used the help of MDN in order to solve a bug that I had. I used to say that when a brick is hit, it's state becomes false and it's x and y coordinates become 0. However, I later found out that this caused a bug that made the score be exponentially incremented everytime the ball would hit the upper edge of the canvas between positions {x: 0, y: 0} and something like {x: 100, y:0} (I realized this was due to the fact that the bricks were not removed from the canvas, but placed at {x:0, y:0} of the canvas while still retaining their width. The more bricks the ball "destroyed", the more the score was incremented). Removing the lines that changed the coordinates of the bricks and adding a conditional statement before drawing the bricks, saying that they shouldn't exist on the canvas if their status is not true, solved the problem.*/
+
+/*
+In the code below, I used the help of MDN in order to solve a bug that I had. I used to say that when a brick is hit, it's state becomes false and it's x and y coordinates become 0. However, I later found out that this caused a bug that made the score be exponentially incremented everytime the ball would hit the upper edge of the canvas between positions {x: 0, y: 0} and something like {x: 100, y:0} (I realized this was due to the fact that the bricks were not removed from the canvas, but placed at {x:0, y:0} of the canvas while still retaining their width. The more bricks the ball "destroyed", the more the score was incremented). Removing the lines that changed the coordinates of the bricks and adding a conditional statement before drawing the bricks, saying that they shouldn't exist on the canvas if their status is not true, solved the problem.
+*/
 
 function ballBrickCollision(ballObject, brickObject, brickwallObject) {
   for (let r = 0; r < brickwallObject.rowCount; r++) {
@@ -351,31 +383,59 @@ function ballBrickCollision(ballObject, brickObject, brickwallObject) {
         ) {
           ballObject.dirY *= -1;
           bricks.state = false;
-          // bricks.x = 0;
-          // bricks.y = 0;
+          breakingSound();
           score++;
         }
       }
     }
   }
 }
+
+// Fonctions pour l'implémentation des sons
+
+function breakingSound() {
+  let brickSound = document.createElement("audio");
+  brickSound.src = "./sounds/brickdrop.mp3";
+  brickSound.play();
+}
+
+function winningSound() {
+  if (winSound.state === true) {
+    winSound.play();
+  }
+}
+
+function losingSound() {
+  if (loseSound.state === true) {
+    loseSound.play();
+  }
+}
+
 // Fonction pour définir la victoire ou la défaite
 
-function checkWinOrLose(ballObject, brickwallObject) {
+function checkWinOrLose(ballObject, brickwallObject, paddleObject) {
   if (score === brickwallObject.rowCount * brickwallObject.colCount) {
     winDiv.style.display = "flex";
-    canvas.style.display = "none";
+    ballObject.dirY = 0;
+    ballObject.dirX = 0;
+    paddleObject.posX = undefined;
+    winningSound();
+    winSound.state = false;
   }
-  if (ballObject.posY + ballObject.radius > canvas.height) {
+  if (ballObject.posY > paddleObject.posY) {
+    ballObject.dirY = 0;
+    ballObject.dirX = 0;
     loseDiv.style.display = "flex";
-    canvas.style.display = "none";
+    paddleObject.posX = undefined;
+    losingSound();
+    loseSound.state = false;
   }
 }
 
 function startGame() {
   requestAnimationFrame(startGame);
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  checkWinOrLose(gameBall, gameBrickwall);
+  checkWinOrLose(gameBall, gameBrickwall, gamePaddle);
   drawBrickwall(gameBrickwall, gameBrick);
   drawPaddle(gamePaddle);
   drawBall(gameBall);
@@ -387,5 +447,36 @@ function startGame() {
   ballPaddleCollision(gameBall, gamePaddle);
   ballBrickCollision(gameBall, gameBrick, gameBrickwall);
 }
-// setInterval(startGame, 1000); // Utilisé pour vérifier certains paramètres et éviter que l'ordinateur ne s'emballe si (quand...) il y a une couille.
+// setInterval(startGame, 500); // Utilisé pour vérifier certains paramètres et éviter que l'ordinateur ne s'emballe si (quand...) il y a une couille.
 startGame();
+
+/* 
+
+Test pour correction de bugs sur les collisions :
+
+gameBall.posX = canvas.width - gameBall.radius;
+gameBall.posY = 0 + gameBall.radius;
+gameBall.dirX = 1;  OK c'est bon, il n'y a plus le bug à la con qui bloquait la balle en haut de l'écran (c'était dû à une condition else if au lieu de if dans la gestion des collisions entre la balle et l'écran);
+
+gameBall.posX = canvas.width / 2;
+gameBall.posY = 400;
+gameBall.dirX = 0; OK la brique est détruite au contact Y direct avec la balle par le bas;
+
+gameBall.posX = canvas.width / 2;
+gameBall.posY = 40;
+gameBall.dirX = 0;
+gameBall.dirY = 1; OK la brique est détruite au contact Y direct avec la balle par le haut;
+
+gameBall.posX = 100;
+gameBall.posY = 350;
+gameBall.dirX = 1;
+gameBall.dirY = 0;  OK la brique est détruite au contact X direct par la gauche;
+
+gameBall.posX = canvas.width - 100
+gameBall.posY = 350;
+gameBall.dirX = -1;
+gameBall.dirY = 0;   OK la brique est détruite au contact X direct par la droite;
+
+gameBall
+
+*/
