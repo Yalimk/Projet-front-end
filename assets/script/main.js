@@ -31,11 +31,12 @@
 
 // Implémenter les fonctionnalités des bulles (optionnel);
 
+// Créer les pages web dans lesquelles sera implémenté le jeu; OK
+
 /*******************FEATURES TO BE ADDED*******************/
-// Créer les pages web dans lesquelles sera implémenté le jeu;
 
 /**********************BONUS FEATURES**********************/
-// Implémenter les changements de trajectoire de l'axe X de la balle si elle touche un côté des briques (optionnel); je laisse tomber cette fonctionnalité bonus : trop casse-tête.
+// Implémenter les changements de trajectoire de l'axe X de la balle si elle touche un côté des briques (optionnel); je laisse tomber cette fonctionnalité bonus : trop casse-tête. Ce doit être possible, mais je ne vois pas comment ='(
 
 /*****************************************************************/
 // Canvas definition
@@ -128,6 +129,30 @@ for (let i = 0; i < downloadButton.length; i++) {
     window.open("./resume.html", "_self");
   });
 }
+
+// Import des fonctions
+
+import { createBall } from "ball.js";
+import { drawBall } from "ball.js";
+import { moveBall } from "ball.js";
+import { createBricks } from "bricks.js";
+import { createBrickwall } from "bricks.js";
+import { defineBrickwall } from "bricks.js";
+import { drawBrickwall } from "bricks.js";
+import { createBubbles } from "bubbles.js";
+import { drawBubbles } from "bubbles.js";
+import { moveBubbles } from "bubbles.js";
+import { ballBrickCollision } from "collisions.js";
+import { ballPaddleCollision } from "collisions.js";
+import { createPaddle } from "paddle.js";
+import { drawPaddle } from "paddle.js";
+import { movePaddle } from "paddle.js";
+import { drawScore } from "ui.js";
+import { drawSkills } from "ui.js";
+import { breakingSound } from "sounds.js";
+import { poppingSound } from "sounds.js";
+import { winningSound } from "sounds.js";
+import { losingSound } from "sounds.js";
 
 // Les fonctions usine :
 

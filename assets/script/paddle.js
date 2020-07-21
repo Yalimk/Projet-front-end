@@ -4,7 +4,7 @@ export function createPaddle() {
   paddle.height = 14;
   paddle.posX = (canvas.width - paddle.width) * 0.5;
   paddle.posY = canvas.height - paddle.height - 30;
-  paddle.velX = 3;
+  paddle.velX = 5;
   return paddle;
   // Used to create gamePaddle;
 }

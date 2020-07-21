@@ -1,60 +1,90 @@
-function createBubbles(color) {
+export function createBubbles(color1, color2) {
   const bubble = {};
-  bubble.radius = Math.random() * 20 + 10;
-  bubble.x = Math.random() * (canvas.width - bubble.radius * 2) + bubble.radius;
-  bubble.y =
+  bubble.radius = Math.random() * 20 + 15;
+  bubble.posX =
+    Math.random() * (canvas.width - bubble.radius * 2) + bubble.radius;
+  bubble.posY =
     Math.random() * (canvas.height - bubble.radius * 2) + bubble.radius;
-  bubble.speedX = (Math.random() - 0.5) * 8;
-  bubble.speedY = (Math.random() - 0.5) * 8;
-  bubble.maxRadius = Math.random() * 99 + 25;
+  bubble.dirX = (Math.random() - 0.5) * 3;
+  bubble.dirY = (Math.random() - 0.5) * 3;
+  bubble.minRadius = bubble.radius;
+  bubble.maxRadius = bubble.radius + Math.floor(Math.random() * 66 + 33);
+  bubble.color = `rgba(${color1})`;
   bubble.state = true;
 
   bubble.draw = function () {
     if (bubble.state === true) {
       ctx.beginPath();
-      ctx.arc(bubble.x, bubble.y, bubble.radius, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(${color}, 0.3)`;
+      ctx.arc(bubble.posX, bubble.posY, bubble.radius, 0, Math.PI * 2);
+      ctx.fillStyle = bubble.color;
       ctx.fill();
     }
   };
 
   bubble.move = function () {
     if (
-      bubble.x + bubble.radius >= canvas.width ||
-      bubble.x - bubble.radius <= 0
+      bubble.posX + bubble.radius > canvas.width ||
+      bubble.posX - bubble.radius < 0
     ) {
-      bubble.speedX *= -1;
+      bubble.dirX *= -1;
     }
 
     if (
-      bubble.y + bubble.radius >= canvas.height ||
-      bubble.y - bubble.radius <= 0
+      bubble.posY + bubble.radius > canvas.height ||
+      bubble.posY - bubble.radius < 0
     ) {
-      bubble.speedY *= -1;
+      bubble.dirY *= -1;
     }
-    bubble.x += bubble.speedX;
-    bubble.y += bubble.speedY;
+    bubble.posX += bubble.dirX;
+    bubble.posY += bubble.dirY;
   };
+
+  bubble.grow = function (ballObject) {
+    let distX = bubble.posX - ballObject.posX;
+    let distY = bubble.posY - ballObject.posY;
+    let distArea = Math.sqrt(distX * distX + distY * distY);
+    if (spaceBar) {
+      if (distArea < bubble.radius + ballObject.radius) {
+        if (bubble.radius < bubble.maxRadius) {
+          bubble.radius += 2;
+          bubble.color = `rgba(${color2})`;
+        }
+      } else if (distArea > bubble.radius + ballObject.radius) {
+        if (bubble.radius > bubble.minRadius) {
+          bubble.radius -= 0.5;
+          bubble.color = `rgba(${color1})`;
+        }
+      }
+    }
+
+    bubble.remove = function () {
+      if (bubble.radius >= bubble.maxRadius && bubble.state === true) {
+        poppingSound();
+        bubble.state = false;
+      }
+    };
+  };
+
   return bubble;
   // Used to create all the bubbles, draw them and make them move on the screen;
 }
 
 export function drawBubbles() {
-  for (let i = 0; i < 10; i++) {
-    speedBubblesArray.push(createBubbles("217, 68, 54"));
-  }
-  for (let j = 0; j < 10; j++) {
-    slowBubblesArray.push(createBubbles("83, 126, 255"));
+  for (let i = 0; i < 20; i++) {
+    if (bubblesArray.length < 20) {
+      bubblesArray.push(
+        createBubbles("98, 148, 166, 0.5", "191, 229, 242, 0.7")
+        // createBubbles("98, 148, 166, 0.5", "242, 242, 242, 0.7")
+      );
+    }
   }
 }
 
 export function moveBubbles() {
-  slowBubblesArray.forEach((blueBubble) => {
-    blueBubble.draw();
-    blueBubble.move();
-  });
-  speedBubblesArray.forEach((redBubble) => {
-    redBubble.draw();
-    redBubble.move();
+  bubblesArray.forEach((bubble) => {
+    bubble.draw();
+    bubble.move();
+    bubble.grow(gameBall);
+    bubble.remove();
   });
 }

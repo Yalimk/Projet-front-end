@@ -133,3 +133,13 @@ button:hover {
 #photo {
   border-radius: 10px;
 }
+
+#resume-block {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  justify-content: space-between;
+  padding: 20px;
+  width: 100vw;
+}
