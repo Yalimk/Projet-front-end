@@ -1,6 +1,11 @@
 :root {
   --width: 100vw;
   --height: 100vh;
+  --border: 5px solid #a68d72;
+  --background-color: #fff1e3;
+  --block-color: #a68d72;
+  --div-color: #a68d72;
+  --button-color: #6294a6;
 }
 *,
 *::after,
@@ -10,7 +15,7 @@
 
 body {
   align-items: center;
-  background-color: #f2ebdc;
+  background-color: var(--background-color);
   display: grid;
   justify-items: center;
   height: var(--height);
@@ -28,7 +33,8 @@ body {
 
 header {
   align-items: center;
-  border: 10px solid #cdd973;
+  background-color: var(--block-color);
+  /* border: var(--border); */
   border-radius: 5px;
   display: grid;
   grid-template-columns: 5fr 3fr;
@@ -37,14 +43,17 @@ header {
 }
 
 header h1 {
+  color: white;
   text-align: center;
   margin: 0;
   padding: 0;
 }
 
 footer {
+  background-color: var(--block-color);
+  /* border: var(--border); */
+  border-radius: 5px;
   display: grid;
-  grid-template-rows: 2fr 1fr;
 }
 
 ul {
@@ -57,18 +66,19 @@ ul {
 }
 
 #gameCanvas {
-  /* background-image: linear-gradient(#a6a6a6, #d9d9d9, #f2f2f2); */
-  background-image: linear-gradient(#f2e1c2, #8c6e49, #59462e);
-  border: 15px solid #cdd973;
+  background-color: black;
+  /* border: var(--border); */
   border-radius: 7.5px;
   display: grid;
 }
 
 .myDiv {
   align-items: center;
-  background-color: #cdd973;
-  border-radius: 10px;
-  box-shadow: 2px 2px 5px black;
+  background-color: var(--div-color);
+  border: 3px solid #f2dabf;
+  border-radius: 6px;
+  box-shadow: 0 0 10px 10px white;
+  color: white;
   display: none;
   flex-direction: column;
   height: 300px;
@@ -81,6 +91,7 @@ ul {
 }
 
 * p {
+  font-size: 1.2em;
   font-weight: bold;
   font-family: "Candara";
   text-align: center;
@@ -88,8 +99,10 @@ ul {
 
 #explanation {
   align-items: center;
-  border: 10px solid #cdd973;
+  background-color: var(--block-color);
+  /* border: var(--border); */
   border-radius: 5px;
+  color: white;
   display: flex;
   justify-content: center;
   padding: 20px;
@@ -98,7 +111,7 @@ ul {
 button {
   align-items: center;
   color: white;
-  background-color: #465902;
+  background-color: var(--button-color);
   border-radius: 5px;
   box-shadow: 1px 1px 3px black;
   display: flex;

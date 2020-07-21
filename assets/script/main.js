@@ -280,7 +280,7 @@ function drawPaddle(paddleObject) {
 function drawBall(ballObject) {
   ctx.beginPath();
   ctx.arc(ballObject.posX, ballObject.posY, ballObject.radius, 0, Math.PI * 2);
-  ctx.fillStyle = "#5FA0D9"; //"#4E94BF";
+  ctx.fillStyle = "#5FA0D9";
   ctx.fill();
   ctx.closePath();
 }
@@ -335,7 +335,7 @@ function drawSkills() {
 
 function drawScore() {
   ctx.font = "40px Helvetica, Arial, sans-serif";
-  ctx.fillStyle = "#5FA0D9"; //"#cdd973";
+  ctx.fillStyle = "#5FA0D9";
   ctx.fillText(`Score: ${score}`, canvas.width - 180, 40);
 }
 
@@ -343,7 +343,8 @@ function drawBubbles() {
   for (let i = 0; i < 20; i++) {
     if (bubblesArray.length < 20) {
       bubblesArray.push(
-        createBubbles("242, 242, 242, 0.3", "95, 160, 217, 0.5")
+        createBubbles("98, 148, 166, 0.5", "191, 229, 242, 0.7")
+        // createBubbles("98, 148, 166, 0.5", "242, 242, 242, 0.7")
       );
     }
   }
@@ -397,9 +398,8 @@ function moveBubbles() {
 
 function ballPaddleCollision(ballObject, paddleObject) {
   if (
-    ballObject.posX + ballObject.radius > paddleObject.posX &&
-    ballObject.posX - ballObject.radius <
-      paddleObject.posX + paddleObject.width &&
+    ballObject.posX > paddleObject.posX &&
+    ballObject.posX < paddleObject.posX + paddleObject.width &&
     ballObject.posY + ballObject.dirY > paddleObject.posY
   ) {
     ballObject.dirY *= -1;
