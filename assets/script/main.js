@@ -343,7 +343,7 @@ function drawBubbles() {
   for (let i = 0; i < 20; i++) {
     if (bubblesArray.length < 20) {
       bubblesArray.push(
-        createBubbles("187, 217, 78, 0.3", "95, 160, 217, 0.5")
+        createBubbles("242, 242, 242, 0.3", "95, 160, 217, 0.5")
       );
     }
   }
@@ -382,8 +382,6 @@ function moveBall(ballObject) {
   if (ballObject.posY - ballObject.radius < 0) {
     ballObject.dirY *= -1;
   }
-
-  // On ajoutera ici la condition qui fait que si la balle touche une brique / bulle, sa vélocité augmente de 0.05... démoniaque *,..,*
 }
 
 function moveBubbles() {
@@ -480,6 +478,7 @@ function checkWinOrLose(ballObject, brickwallObject, paddleObject) {
     winDiv.style.display = "flex";
     winningSound();
     winSound.state = false;
+    spaceBar = false;
   }
   if (
     ballObject.posY + ballObject.radius >
@@ -491,6 +490,7 @@ function checkWinOrLose(ballObject, brickwallObject, paddleObject) {
     loseDiv.style.display = "flex";
     losingSound();
     loseSound.state = false;
+    spaceBar = false;
   }
 }
 
@@ -538,7 +538,6 @@ startGame();
   });
 })();
 /* 
-
 Tests utilisés pour la correction des bugs sur les collisions :
 
 gameBall.posX = canvas.width - gameBall.radius;
@@ -565,5 +564,4 @@ gameBall.dirX = -1;
 gameBall.dirY = 0;   OK la brique est détruite au contact X direct par la droite;
 
 gameBall
-
 */

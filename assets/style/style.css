@@ -9,8 +9,8 @@
 }
 
 body {
-  background-color: #f2ebdc;
   align-items: center;
+  background-color: #f2ebdc;
   display: grid;
   justify-items: center;
   height: var(--height);
@@ -31,7 +31,7 @@ header {
   border: 10px solid #cdd973;
   border-radius: 5px;
   display: grid;
-  grid-template-columns: 10fr 2fr;
+  grid-template-columns: 5fr 3fr;
   justify-items: center;
   padding: 20px;
 }
@@ -42,13 +42,18 @@ header h1 {
   padding: 0;
 }
 
+footer {
+  display: grid;
+  grid-template-rows: 2fr 1fr;
+}
+
 ul {
+  align-content: space-between;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   justify-items: center;
   list-style-type: none;
-  margin-top: 20px;
-  padding: 20px;
+  padding: 0;
 }
 
 #gameCanvas {
@@ -68,10 +73,10 @@ ul {
   flex-direction: column;
   height: 300px;
   justify-content: space-evenly;
+  left: calc(50% - 200px);
   padding: 10px;
   position: absolute;
   top: calc(50% - 150px);
-  left: calc(50% - 200px);
   width: 400px;
 }
 
