@@ -6,15 +6,18 @@
     <link rel="stylesheet" href="./style/style.css" />
     <script src="./script/main.js" defer></script>
     <!-- <script src="./script/game.js" defer type="module"></script> -->
-    <title>Premier projet IFOCOP DIWJS 13</title>
+    <title>Projet front-end IFOCOP DIWJS 13</title>
   </head>
   <body>
-    <button class="download" id="directDL">Mon CV</button>
-    <header>
-      <h1>Alexandre Masson - Développeur JavaScript Full Stack</h1>
-    </header>
-    <div id="container">
-      <div>
+    <div class="container-main">
+      <header>
+        <h1>
+          Alexandre Masson<br />
+          Développeur JavaScript Full Stack
+        </h1>
+        <button class="download" id="directDL">Mon CV</button>
+      </header>
+      <div id="explanation">
         <p>
           Pour démarrer la partie, appuyez sur la barre ESPACE. Le but du jeu
           est de détruire toutes les briques grâce à la balle. La balle rebondit
@@ -41,8 +44,33 @@
         <button class="download">CV</button>
         <button class="restart">RESTART</button>
       </div>
+      <div id="canvas-container">
+        <canvas id="gameCanvas"></canvas>
+      </div>
+      <footer>
+        <ul>
+          <li>
+            <img
+              src="facebook_logo"
+              alt="logo_facebook"
+              title="Facebook"
+            />Facebook
+          </li>
+          <li>
+            <img src="twitter" alt="logo_facebook" title="Facebook" />Twitter
+          </li>
+          <li>
+            <img
+              src="linkedin_logo"
+              alt="logo_facebook"
+              title="Facebook"
+            />LinkedIn
+          </li>
+          <li>
+            <img src="github_logo" alt="logo_facebook" title="Facebook" />Github
+          </li>
+        </ul>
+      </footer>
     </div>
-    <canvas id="gameCanvas"></canvas>
-    <footer></footer>
   </body>
 </html>

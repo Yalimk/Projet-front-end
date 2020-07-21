@@ -13,10 +13,6 @@
 
 // Gérer les collisions (entre la balle et le paddle et entre la balle et les briques) ; OK
 
-// Télécharger une image pour le paddle (optionnel); OK
-
-// Télécharger une image pour les briques (optionnel); OK
-
 // Créer les conditions de victoire (si toutes les briques ont été détruites) et de défaite (si la balle tombe derrière le paddle) ; OK
 
 // Dessiner le score et implémenter sa fonctionnalité; OK
@@ -27,20 +23,25 @@
 
 // Ajouter un bouton de téléchargement dans la page index pour permettre le téléchargement du CV sans passer par le jeu; OK
 
-// Implémenter des effets sonores (optionnel); OK
+// Télécharger une image pour le paddle (optionnel); OK
+
+// Télécharger une image pour les briques (optionnel); OK
+
+// Implémenter des effets sonores (briques, bulles, win, lose) (optionnel); OK
+
+// Implémenter les fonctionnalités des bulles (optionnel);
 
 /*******************FEATURES TO BE ADDED*******************/
 // Créer les pages web dans lesquelles sera implémenté le jeu;
 
 /**********************BONUS FEATURES**********************/
-// Implémenter les fonctionnalités des bulles rouges et bleues (optionnel);
-// Implémenter les changements de trajectoire de l'axe X de la balle si elle touche un côté des briques (optionnel); je laisse tomber cette fonctionnalité bonus ; trop casse-tête.
+// Implémenter les changements de trajectoire de l'axe X de la balle si elle touche un côté des briques (optionnel); je laisse tomber cette fonctionnalité bonus : trop casse-tête.
 
 /*****************************************************************/
 // Canvas definition
 const canvas = document.getElementById("gameCanvas");
-canvas.width = 900;
-canvas.height = 900;
+canvas.width = window.innerWidth * 0.7;
+canvas.height = window.innerHeight * 0.7;
 const ctx = canvas.getContext("2d");
 
 // Images
@@ -65,34 +66,21 @@ let gameBall = createBall(gamePaddle);
 let gameBrickwall = createBrickwall();
 let gameBrick = createBricks(gameBrickwall);
 let bubblesArray = [];
+let bricksArray = [];
 let rightArrow = false;
 let leftArrow = false;
 let spaceBar = false;
 let score = 0;
+let mouse = {
+  posX: undefined,
+  posY: undefined,
+};
 
 // Interface elements
 let winDiv = document.getElementById("winDiv");
 let loseDiv = document.getElementById("loseDiv");
 let downloadButton = document.getElementsByClassName("download");
 let restartButton = document.getElementsByClassName("restart");
-
-/* 
-Code snippet found at https://developer.mozilla.org/en-US/docs/Games/Tutorials/2D_Breakout_game_pure_JavaScript/Build_the_brick_field. I couldn't find any way around this. Trying to insert this snippet somewhere inside my code was extremely troublesome because the bricksArray object, if defined as a property of the object gameBrickwall, wouldn't be accessible from the global scope, therefore causing issues. 
-*/
-let bricksArray = [];
-for (let r = 0; r < gameBrickwall.rowCount; r++) {
-  bricksArray[r] = [];
-  for (let c = 0; c < gameBrickwall.colCount; c++) {
-    bricksArray[r][c] = {
-      x: 0,
-      y: 0,
-      state: true,
-    };
-  }
-}
-/*
-End of code snippet from MDN.
-*/
 
 // Tous les événements d'écoute :
 
@@ -124,7 +112,8 @@ window.addEventListener("keydown", (event) => {
 });
 
 window.addEventListener("mousemove", (event) => {
-  // console.log(event.clientX, event.clientY);
+  mouse.posX = event.clientX;
+  mouse.posY = event.clientY;
 });
 
 for (let i = 0; i < restartButton.length; i++) {
@@ -139,7 +128,7 @@ for (let i = 0; i < downloadButton.length; i++) {
   });
 }
 
-// Les fonctions créatrices d'objet :
+// Les fonctions usine :
 
 function createPaddle() {
   let paddle = {};
@@ -154,7 +143,7 @@ function createPaddle() {
 
 function createBall(paddleObject) {
   let ball = {};
-  ball.radius = 12;
+  ball.radius = 14;
   ball.dirX = (Math.random() - 0.5) * 5;
   ball.dirY = -3;
   ball.posX = paddleObject.posX + paddleObject.width / 2;
@@ -166,7 +155,21 @@ function createBall(paddleObject) {
 function createBrickwall() {
   let brickwall = {};
   brickwall.rowCount = 6;
-  brickwall.colCount = 5;
+  brickwall.colCount = 2;
+
+  if (canvas.width >= 992) {
+    brickwall.colCount = 7;
+    brickwall.rowCount = 6;
+  } else if (canvas.width < 992 && canvas.width >= 768) {
+    brickwall.colCount = 5;
+    brickwall.rowCount = 6;
+  } else if (canvas.width < 768 && canvas.width >= 576) {
+    brickwall.colCount = 4;
+    brickwall.rowCount = 6;
+  } else if (canvas.width < 576 && canvas.width >= 476) {
+    brickwall.colCount = 3;
+    brickwall.rowCount = 6;
+  }
   return brickwall;
   // Used to create gameBrickwall;
 }
@@ -187,45 +190,73 @@ function createBricks(brickwallObject) {
   // Used to create gameBrick;
 }
 
-function createBubbles(color) {
+function createBubbles(color1, color2) {
   const bubble = {};
-  bubble.radius = Math.random() * 20 + 10;
-  bubble.x = Math.random() * (canvas.width - bubble.radius * 2) + bubble.radius;
-  bubble.y =
+  bubble.radius = Math.random() * 20 + 15;
+  bubble.posX =
+    Math.random() * (canvas.width - bubble.radius * 2) + bubble.radius;
+  bubble.posY =
     Math.random() * (canvas.height - bubble.radius * 2) + bubble.radius;
-  bubble.speedX = (Math.random() - 0.5) * 8;
-  bubble.speedY = (Math.random() - 0.5) * 8;
-  bubble.maxRadius = Math.random() * 99 + 25;
+  bubble.dirX = (Math.random() - 0.5) * 3;
+  bubble.dirY = (Math.random() - 0.5) * 3;
+  bubble.minRadius = bubble.radius;
+  bubble.maxRadius = bubble.radius + Math.floor(Math.random() * 66 + 33);
+  bubble.color = `rgba(${color1})`;
   bubble.state = true;
 
   bubble.draw = function () {
     if (bubble.state === true) {
       ctx.beginPath();
-      ctx.arc(bubble.x, bubble.y, bubble.radius, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(${color})`;
+      ctx.arc(bubble.posX, bubble.posY, bubble.radius, 0, Math.PI * 2);
+      ctx.fillStyle = bubble.color;
       ctx.fill();
     }
   };
 
   bubble.move = function () {
     if (
-      bubble.x + bubble.radius >= canvas.width ||
-      bubble.x - bubble.radius <= 0
+      bubble.posX + bubble.radius > canvas.width ||
+      bubble.posX - bubble.radius < 0
     ) {
-      bubble.speedX *= -1;
+      bubble.dirX *= -1;
     }
 
     if (
-      bubble.y + bubble.radius >= canvas.height ||
-      bubble.y - bubble.radius <= 0
+      bubble.posY + bubble.radius > canvas.height ||
+      bubble.posY - bubble.radius < 0
     ) {
-      bubble.speedY *= -1;
+      bubble.dirY *= -1;
     }
-    bubble.x += bubble.speedX;
-    bubble.y += bubble.speedY;
+    bubble.posX += bubble.dirX;
+    bubble.posY += bubble.dirY;
   };
 
-  bubble.grow = function () {};
+  bubble.grow = function (ballObject) {
+    let distX = bubble.posX - ballObject.posX;
+    let distY = bubble.posY - ballObject.posY;
+    let distArea = Math.sqrt(distX * distX + distY * distY);
+    if (spaceBar) {
+      if (distArea < bubble.radius + ballObject.radius) {
+        if (bubble.radius < bubble.maxRadius) {
+          bubble.radius += 2;
+          bubble.color = `rgba(${color2})`;
+        }
+      } else if (distArea > bubble.radius + ballObject.radius) {
+        if (bubble.radius > bubble.minRadius) {
+          bubble.radius -= 0.5;
+          bubble.color = `rgba(${color1})`;
+        }
+      }
+    }
+
+    bubble.remove = function () {
+      if (bubble.radius >= bubble.maxRadius && bubble.state === true) {
+        poppingSound();
+        bubble.state = false;
+      }
+    };
+  };
+
   return bubble;
   // Used to create all the bubbles, draw them and make them move on the screen;
 }
@@ -249,10 +280,24 @@ function drawPaddle(paddleObject) {
 function drawBall(ballObject) {
   ctx.beginPath();
   ctx.arc(ballObject.posX, ballObject.posY, ballObject.radius, 0, Math.PI * 2);
-  ctx.fillStyle = "#4E94BF";
+  ctx.fillStyle = "#5FA0D9"; //"#4E94BF";
   ctx.fill();
   ctx.closePath();
 }
+
+function defineBrickwall(brickwallObject) {
+  for (let r = 0; r < brickwallObject.rowCount; r++) {
+    bricksArray[r] = [];
+    for (let c = 0; c < brickwallObject.colCount; c++) {
+      bricksArray[r][c] = {
+        x: 0,
+        y: 0,
+        state: true,
+      };
+    }
+  }
+}
+defineBrickwall(gameBrickwall); // I couldn't find any other place to execute this function; tried to make it a self-executing function, but then I couldn't all it from the self-executing resizeScreen() function, which was a bit of a pain because it was supposed to call it to update the canvas when the screen size changes, so... well. Here's the only solution I could find.
 
 function drawBrickwall(brickwallObject, brickObject) {
   for (let r = 0; r < brickwallObject.rowCount; r++) {
@@ -290,15 +335,19 @@ function drawSkills() {
 
 function drawScore() {
   ctx.font = "40px Helvetica, Arial, sans-serif";
-  ctx.fillStyle = "#cdd973";
+  ctx.fillStyle = "#5FA0D9"; //"#cdd973";
   ctx.fillText(`Score: ${score}`, canvas.width - 180, 40);
 }
 
-(function drawBubbles() {
+function drawBubbles() {
   for (let i = 0; i < 20; i++) {
-    bubblesArray.push(createBubbles("187, 217, 78, 0.3"));
+    if (bubblesArray.length < 20) {
+      bubblesArray.push(
+        createBubbles("187, 217, 78, 0.3", "95, 160, 217, 0.5")
+      );
+    }
   }
-})();
+}
 
 // Les fonctions qui gèrent les mouvements :
 
@@ -341,6 +390,8 @@ function moveBubbles() {
   bubblesArray.forEach((bubble) => {
     bubble.draw();
     bubble.move();
+    bubble.grow(gameBall);
+    bubble.remove();
   });
 }
 
@@ -348,11 +399,13 @@ function moveBubbles() {
 
 function ballPaddleCollision(ballObject, paddleObject) {
   if (
-    ballObject.posX > paddleObject.posX &&
-    ballObject.posX < paddleObject.posX + paddleObject.width &&
-    ballObject.posY + ballObject.radius > paddleObject.posY
+    ballObject.posX + ballObject.radius > paddleObject.posX &&
+    ballObject.posX - ballObject.radius <
+      paddleObject.posX + paddleObject.width &&
+    ballObject.posY + ballObject.dirY > paddleObject.posY
   ) {
     ballObject.dirY *= -1;
+
     if (
       (ballObject.posX > paddleObject.posX &&
         ballObject.posX < paddleObject.posX + paddleObject.width / 2 &&
@@ -395,8 +448,14 @@ function ballBrickCollision(ballObject, brickObject, brickwallObject) {
 
 function breakingSound() {
   let brickSound = document.createElement("audio");
-  brickSound.src = "./sounds/brickdrop.mp3";
+  brickSound.src = "./sounds/impact.mp3";
   brickSound.play();
+}
+
+function poppingSound() {
+  let bubbleSound = document.createElement("audio");
+  bubbleSound.src = "./sounds/bubble.mp3";
+  bubbleSound.play();
 }
 
 function winningSound() {
@@ -415,30 +474,34 @@ function losingSound() {
 
 function checkWinOrLose(ballObject, brickwallObject, paddleObject) {
   if (score === brickwallObject.rowCount * brickwallObject.colCount) {
-    winDiv.style.display = "flex";
     ballObject.dirY = 0;
     ballObject.dirX = 0;
     paddleObject.posX = undefined;
+    winDiv.style.display = "flex";
     winningSound();
     winSound.state = false;
   }
-  if (ballObject.posY > paddleObject.posY) {
+  if (
+    ballObject.posY + ballObject.radius >
+    paddleObject.posY + paddleObject.height
+  ) {
     ballObject.dirY = 0;
     ballObject.dirX = 0;
-    loseDiv.style.display = "flex";
     paddleObject.posX = undefined;
+    loseDiv.style.display = "flex";
     losingSound();
     loseSound.state = false;
   }
 }
 
 function startGame() {
-  requestAnimationFrame(startGame);
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+  requestAnimationFrame(startGame);
   checkWinOrLose(gameBall, gameBrickwall, gamePaddle);
   drawBrickwall(gameBrickwall, gameBrick);
   drawPaddle(gamePaddle);
   drawBall(gameBall);
+  drawBubbles();
   drawSkills(gameBrick, gameBrickwall);
   drawScore();
   movePaddle(gamePaddle);
@@ -446,13 +509,37 @@ function startGame() {
   moveBubbles();
   ballPaddleCollision(gameBall, gamePaddle);
   ballBrickCollision(gameBall, gameBrick, gameBrickwall);
+
+  // console.log("paddleY:", gamePaddle.posY, "ballY:", gameBall.posY + gameBall.radius,"ballDirY:", gameBall.dirY); // Utilisé pour vérifier ce qu'il se passait quand la balle entrait en collision avec la raquette, et pourquoi j'avais en permanence, si l'utilisateur bougeait rapidement la raquette et que celle-ci entrait en collision avec la balle par le côté, un "blocage" de la dirY de la balle (-3, 3, -3, 3 etc). Il s'avère que c'est parce que la condition qui gère le rebond inversant la dirY de la balle, celle-ci voyait sa dirY inversée à l'infini tant qu'elle restait dans la zone x de la raquette... La solution que j'ai trouvée est celle employée dans ce code ; elle n'est pas parfaite, mais normalement, aucun être humain n'aura les réflexes suffisants pour bloquer à nouveau la balle avec sa vitesse de déplacement de -3. Le seul "fix" réel que je pourrais employer serait de coller la raquette au bord du canvas, mais je trouve ça moche, donc non;
 }
-// setInterval(startGame, 500); // Utilisé pour vérifier certains paramètres et éviter que l'ordinateur ne s'emballe si (quand...) il y a une couille.
+// setInterval(startGame, 500); // Utilisé pour vérifier certains paramètres et éviter que l'ordinateur ne s'emballe si (quand...) il y a une couille. J'ai notamment utilisé ce bout de code pour vérifier les collisions entre la balle et le paddle ou la balle et les briques.
 startGame();
 
+// Fonction pour redimensionner le canevas en fonction de la taille de l'écran, ainsi que replacer tous les objets :
+
+(function resizeScreen() {
+  window.addEventListener("resize", function () {
+    canvas.width = window.innerWidth * 0.7;
+    canvas.height = window.innerHeight * 0.7;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    gamePaddle = createPaddle();
+    gameBall = createBall(gamePaddle);
+    gameBrickwall = createBrickwall();
+    gameBrick = createBricks(gameBrickwall);
+    bubblesArray = [];
+    defineBrickwall(gameBrickwall);
+    drawBrickwall(gameBrickwall, gameBrick);
+    drawPaddle(gamePaddle);
+    drawBall(gameBall);
+    drawBubbles();
+    drawSkills(gameBrick, gameBrickwall);
+    drawScore();
+    spaceBar = false;
+  });
+})();
 /* 
 
-Test pour correction de bugs sur les collisions :
+Tests utilisés pour la correction des bugs sur les collisions :
 
 gameBall.posX = canvas.width - gameBall.radius;
 gameBall.posY = 0 + gameBall.radius;
