@@ -41,7 +41,8 @@
 // Canvas definition
 const canvas = document.getElementById("gameCanvas");
 canvas.width = window.innerWidth * 0.7;
-canvas.height = window.innerHeight * 0.7;
+// canvas.height = window.innerHeight * 0.7;
+canvas.height = 900;
 const ctx = canvas.getContext("2d");
 
 // Images
@@ -157,16 +158,25 @@ function createBrickwall() {
   brickwall.rowCount = 6;
   brickwall.colCount = 2;
 
-  if (canvas.width >= 992) {
+  if (canvas.width >= 1700) {
+    brickwall.colCount = 10;
+    brickwall.rowCount = 6;
+  } else if (canvas.width >= 1400 && canvas.width < 1700) {
+    brickwall.colCount = 9;
+    brickwall.rowCount = 6;
+  } else if (canvas.width >= 1200 && canvas.width < 1400) {
     brickwall.colCount = 7;
     brickwall.rowCount = 6;
-  } else if (canvas.width < 992 && canvas.width >= 768) {
+  } else if (canvas.width >= 992 && canvas.width < 1200) {
+    brickwall.colCount = 6;
+    brickwall.rowCount = 6;
+  } else if (canvas.width < 992 && canvas.width >= 854) {
     brickwall.colCount = 5;
     brickwall.rowCount = 6;
-  } else if (canvas.width < 768 && canvas.width >= 576) {
+  } else if (canvas.width < 854 && canvas.width >= 690) {
     brickwall.colCount = 4;
     brickwall.rowCount = 6;
-  } else if (canvas.width < 576 && canvas.width >= 476) {
+  } else if (canvas.width < 690 && canvas.width >= 560) {
     brickwall.colCount = 3;
     brickwall.rowCount = 6;
   }
