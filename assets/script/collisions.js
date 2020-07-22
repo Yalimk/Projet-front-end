@@ -1,3 +1,38 @@
+import { canvas, ctx, bricksArray, skills } from "./game.js";
+import {
+  breakingSound,
+  winningSound,
+  losingSound,
+  loseSound,
+  winSound,
+} from "./sounds.js";
+
+export { spaceBarCollisions };
+
+let score = 0;
+let winDiv = document.getElementById("winDiv");
+let loseDiv = document.getElementById("loseDiv");
+let spaceBarCollisions = false;
+
+window.addEventListener("keydown", (event) => {
+  if (event.key === " ") {
+    event.preventDefault();
+    spaceBarCollisions = true;
+  }
+});
+
+export function drawSkills() {
+  ctx.beginPath();
+  ctx.drawImage(skills, canvas.width / 2 - 183, 63, 366, 305);
+  ctx.globalCompositeOperation = "destination-over";
+}
+
+export function drawScore() {
+  ctx.font = "40px Helvetica, Arial, sans-serif";
+  ctx.fillStyle = "#5FA0D9";
+  ctx.fillText(`Score: ${score}`, canvas.width - 180, 40);
+}
+
 export function ballPaddleCollision(ballObject, paddleObject) {
   if (
     ballObject.posX > paddleObject.posX &&
@@ -41,5 +76,31 @@ export function ballBrickCollision(ballObject, brickObject, brickwallObject) {
         }
       }
     }
+  }
+}
+
+// Fonction pour définir la victoire ou la défaite
+
+export function checkWinOrLose(ballObject, brickwallObject, paddleObject) {
+  if (score === brickwallObject.rowCount * brickwallObject.colCount) {
+    ballObject.dirY = 0;
+    ballObject.dirX = 0;
+    paddleObject.posX = undefined;
+    winDiv.style.display = "flex";
+    winningSound();
+    winSound.state = false;
+    spaceBarCollisions = false;
+  }
+  if (
+    ballObject.posY + ballObject.radius >
+    paddleObject.posY + paddleObject.height
+  ) {
+    ballObject.dirY = 0;
+    ballObject.dirX = 0;
+    paddleObject.posX = undefined;
+    loseDiv.style.display = "flex";
+    losingSound();
+    loseSound.state = false;
+    spaceBarCollisions = false;
   }
 }

@@ -1,3 +1,5 @@
+import { canvas, ctx, bricksArray, brickImg } from "./game.js";
+
 export function createBrickwall() {
   let brickwall = {};
   brickwall.rowCount = 6;

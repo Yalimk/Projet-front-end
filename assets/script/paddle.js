@@ -1,3 +1,8 @@
+import { canvas, ctx, paddleImg } from "./game.js";
+import { spaceBarCollisions } from "./collisions.js";
+let rightArrow = false;
+let leftArrow = false;
+
 export function createPaddle() {
   let paddle = {};
   paddle.width = 97;
@@ -24,7 +29,7 @@ export function drawPaddle(paddleObject) {
 }
 
 export function movePaddle(paddleObject) {
-  if (spaceBar) {
+  if (spaceBarCollisions) {
     if (leftArrow && paddleObject.posX > 0) {
       rightArrow = false;
       paddleObject.posX -= paddleObject.velX;
@@ -37,3 +42,23 @@ export function movePaddle(paddleObject) {
     }
   }
 }
+
+window.addEventListener("keydown", (event) => {
+  if (event.key === "ArrowLeft") {
+    event.preventDefault();
+    leftArrow = true;
+    rightArrow = "";
+  } else if (event.key === "ArrowRight") {
+    event.preventDefault();
+    rightArrow = true;
+    leftArrow = "";
+  }
+});
+
+window.addEventListener("keyup", (event) => {
+  if (event.key === "ArrowLeft") {
+    leftArrow = false;
+  } else if (event.key === "ArrowRight") {
+    rightArrow = false;
+  }
+});

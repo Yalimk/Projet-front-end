@@ -49,16 +49,33 @@ import {
   defineBrickwall,
   drawBrickwall,
 } from "./bricks.js";
-import { createBubbles, drawBubbles, moveBubbles } from "./bubbles.js";
-import { ballBrickCollision, ballPaddleCollision } from "./collisions.js";
-import { createPaddle, drawPaddle, movePaddle } from "./paddle.js";
-import { drawScore, drawSkills } from "./ui.js";
+import { drawBubbles, moveBubbles } from "./bubbles.js";
 import {
-  breakingSound,
-  poppingSound,
-  winningSound,
-  losingSound,
-} from "./sounds.js";
+  ballBrickCollision,
+  ballPaddleCollision,
+  checkWinOrLose,
+  drawScore,
+  drawSkills,
+} from "./collisions.js";
+import { createPaddle, drawPaddle, movePaddle } from "./paddle.js";
+
+// Export des variables :
+
+export {
+  canvas,
+  ctx,
+  paddleImg,
+  brickImg,
+  skills,
+  fireball,
+  gamePaddle,
+  gameBall,
+  gameBrick,
+  gameBrickwall,
+  bubblesArray,
+  bricksArray,
+  spaceBarGame,
+};
 
 // Canvas definition
 const canvas = document.getElementById("gameCanvas");
@@ -77,14 +94,6 @@ skills.src = "./assets/images/skills-mini.png";
 let fireball = new Image();
 fireball.src = "./assets/images/fireball-mini.png";
 
-// Sounds
-let winSound = document.createElement("audio");
-winSound.src = "./assets/sounds/win.mp3";
-winSound.state = true;
-let loseSound = document.createElement("audio");
-loseSound.src = "./assets/sounds/lose.mp3";
-loseSound.state = true;
-
 // Objects
 let gamePaddle = createPaddle();
 let gameBall = createBall(gamePaddle);
@@ -92,43 +101,16 @@ let gameBrickwall = createBrickwall();
 let gameBrick = createBricks(gameBrickwall);
 let bubblesArray = [];
 let bricksArray = [];
-let rightArrow = false;
-let leftArrow = false;
-let spaceBar = false;
-let score = 0;
+let spaceBarGame = false;
 
 // Interface elements
-let winDiv = document.getElementById("winDiv");
-let loseDiv = document.getElementById("loseDiv");
 let downloadButton = document.getElementsByClassName("download");
 let restartButton = document.getElementsByClassName("restart");
-
-// Tous les événements d'écoute :
-
-window.addEventListener("keydown", (event) => {
-  if (event.key === "ArrowLeft") {
-    event.preventDefault();
-    leftArrow = true;
-    rightArrow = "";
-  } else if (event.key === "ArrowRight") {
-    event.preventDefault();
-    rightArrow = true;
-    leftArrow = "";
-  }
-});
-
-window.addEventListener("keyup", (event) => {
-  if (event.key === "ArrowLeft") {
-    leftArrow = false;
-  } else if (event.key === "ArrowRight") {
-    rightArrow = false;
-  }
-});
 
 window.addEventListener("keydown", (event) => {
   if (event.key === " ") {
     event.preventDefault();
-    spaceBar = true;
+    spaceBarGame = true;
   }
 });
 
@@ -144,32 +126,6 @@ for (let i = 0; i < downloadButton.length; i++) {
   });
 }
 defineBrickwall(gameBrickwall); // I couldn't find any other place to execute this function; tried to make it a self-executing function, but then I couldn't all it from the self-executing resizeScreen() function, which was a bit of a pain because it was supposed to call it to update the canvas when the screen size changes, so... well. Here's the only solution I could find.
-
-// Fonction pour définir la victoire ou la défaite
-
-function checkWinOrLose(ballObject, brickwallObject, paddleObject) {
-  if (score === brickwallObject.rowCount * brickwallObject.colCount) {
-    ballObject.dirY = 0;
-    ballObject.dirX = 0;
-    paddleObject.posX = undefined;
-    winDiv.style.display = "flex";
-    winningSound();
-    winSound.state = false;
-    spaceBar = false;
-  }
-  if (
-    ballObject.posY + ballObject.radius >
-    paddleObject.posY + paddleObject.height
-  ) {
-    ballObject.dirY = 0;
-    ballObject.dirX = 0;
-    paddleObject.posX = undefined;
-    loseDiv.style.display = "flex";
-    losingSound();
-    loseSound.state = false;
-    spaceBar = false;
-  }
-}
 
 function startGame() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -211,7 +167,7 @@ startGame();
     drawBubbles();
     drawSkills(gameBrick, gameBrickwall);
     drawScore();
-    spaceBar = false;
+    spaceBarGame = false;
   });
 })();
 /* 

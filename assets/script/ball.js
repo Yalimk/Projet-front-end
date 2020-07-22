@@ -1,3 +1,5 @@
+import { canvas, ctx, spaceBarGame, fireball } from "./game.js";
+
 export function createBall(paddleObject) {
   let ball = {};
   ball.radius = 14;
@@ -27,7 +29,7 @@ export function drawBall(ballObject) {
 }
 
 export function moveBall(ballObject) {
-  if (spaceBar) {
+  if (spaceBarGame) {
     ballObject.posX += ballObject.dirX;
     ballObject.posY += ballObject.dirY;
   }
