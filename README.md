@@ -1,6 +1,4 @@
-# Etapes de la réalisation du projet
+# Projet front-end - Formation DIWJS 13 - 2020
 
-## Plan de création des différents éléments
-
-### Création de l'élément paddle
+Voici mon premier projet au sein de la formation IFOCOP Développeur JavaScript Full Stack.
 

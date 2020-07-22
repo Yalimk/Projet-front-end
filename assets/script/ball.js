@@ -12,8 +12,17 @@ export function createBall(paddleObject) {
 export function drawBall(ballObject) {
   ctx.beginPath();
   ctx.arc(ballObject.posX, ballObject.posY, ballObject.radius, 0, Math.PI * 2);
-  ctx.fillStyle = "#5FA0D9";
-  ctx.fill();
+  ctx.drawImage(
+    fireball,
+    0,
+    0,
+    ballObject.radius * 2,
+    ballObject.radius * 2,
+    ballObject.posX - ballObject.radius,
+    ballObject.posY - ballObject.radius,
+    ballObject.radius * 2,
+    ballObject.radius * 2
+  );
   ctx.closePath();
 }
 

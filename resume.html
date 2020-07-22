@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CV - Alexandre Masson</title>
+    <link rel="stylesheet" href="./assets/style/style.css" />
+  </head>
+  <body>
+    <div class="container-main" class="resume-block">
+      <header>
+        <img
+          src="./assets/images/photo-Alex.png"
+          alt="photo-Alex"
+          title="Photo Alexandre Masson"
+          id="photo"
+        />
+        <h1>
+          Alexandre Masson<br />
+          Développeur JavaScript Full Stack
+        </h1>
+        <button class="restart" onclick="goBack()">ACCUEIL</button>
+      </header>
+      <embed
+        src="./assets/docs/resume.pdf"
+        type="application/pdf"
+        alt="CV Alexandre Masson"
+        title="CV Alexandre Masson"
+        width="70%"
+        height="95%"
+        class="pdf"
+      />
+      <footer>
+        <ul>
+          <li>
+            <a href="https://www.facebook.com/alexandreyvesson" target="_blank"
+              ><img
+                src="./assets/images/logo_facebook.png"
+                alt="logo_facebook"
+                title="Facebook"
+            /></a>
+          </li>
+          <li>
+            <a href="https://github.com/Yalimk/Projet-front-end" target="_blank"
+              ><img
+                src="./assets/images/logo_github.png"
+                alt="logo_github"
+                title="Github"
+            /></a>
+          </li>
+          <li>
+            <a
+              href="https://www.linkedin.com/in/alexandremasson33"
+              target="_blank"
+            >
+              <img
+                src="./assets/images/logo_linkedin.png"
+                alt="logo_linkedin"
+                title="LinkedIn"
+              />
+            </a>
+          </li>
+          <li>
+            <a href="https://twitter.com/masson_ly" target="_blank"
+              ><img
+                src="./assets/images/logo_twitter.png"
+                alt="logo_twitter"
+                title="Twitter"
+              />
+            </a>
+          </li>
+        </ul>
+      </footer>
+    </div>
+    <script>
+      function goBack() {
+        window.open("./index.html", "_self");
+      }
+    </script>
+  </body>
+</html>

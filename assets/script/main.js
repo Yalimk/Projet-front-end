@@ -48,18 +48,20 @@ const ctx = canvas.getContext("2d");
 
 // Images
 let paddleImg = new Image();
-paddleImg.src = "images/wooden-paddle.png";
+paddleImg.src = "./assets/images/wooden-paddle.png";
 let brickImg = new Image();
-brickImg.src = "images/one-yellow-brick-130-52.png";
+brickImg.src = "./assets/images/one-yellow-brick-130-52.png";
 let skills = new Image();
-skills.src = "images/skills-mini.png";
+skills.src = "./assets/images/skills-mini.png";
+let fireball = new Image();
+fireball.src = "./assets/images/fireball-mini.png";
 
 // Sounds
 let winSound = document.createElement("audio");
-winSound.src = "./sounds/win.mp3";
+winSound.src = "./assets/sounds/win.mp3";
 winSound.state = true;
 let loseSound = document.createElement("audio");
-loseSound.src = "./sounds/lose.mp3";
+loseSound.src = "./assets/sounds/lose.mp3";
 loseSound.state = true;
 
 // Objects
@@ -73,10 +75,6 @@ let rightArrow = false;
 let leftArrow = false;
 let spaceBar = false;
 let score = 0;
-let mouse = {
-  posX: undefined,
-  posY: undefined,
-};
 
 // Interface elements
 let winDiv = document.getElementById("winDiv");
@@ -113,11 +111,6 @@ window.addEventListener("keydown", (event) => {
   }
 });
 
-window.addEventListener("mousemove", (event) => {
-  mouse.posX = event.clientX;
-  mouse.posY = event.clientY;
-});
-
 for (let i = 0; i < restartButton.length; i++) {
   restartButton[i].addEventListener("click", () => {
     window.location.reload();
@@ -129,30 +122,6 @@ for (let i = 0; i < downloadButton.length; i++) {
     window.open("./resume.html", "_self");
   });
 }
-
-// Import des fonctions
-
-import { createBall } from "ball.js";
-import { drawBall } from "ball.js";
-import { moveBall } from "ball.js";
-import { createBricks } from "bricks.js";
-import { createBrickwall } from "bricks.js";
-import { defineBrickwall } from "bricks.js";
-import { drawBrickwall } from "bricks.js";
-import { createBubbles } from "bubbles.js";
-import { drawBubbles } from "bubbles.js";
-import { moveBubbles } from "bubbles.js";
-import { ballBrickCollision } from "collisions.js";
-import { ballPaddleCollision } from "collisions.js";
-import { createPaddle } from "paddle.js";
-import { drawPaddle } from "paddle.js";
-import { movePaddle } from "paddle.js";
-import { drawScore } from "ui.js";
-import { drawSkills } from "ui.js";
-import { breakingSound } from "sounds.js";
-import { poppingSound } from "sounds.js";
-import { winningSound } from "sounds.js";
-import { losingSound } from "sounds.js";
 
 // Les fonctions usine :
 
@@ -315,8 +284,17 @@ function drawPaddle(paddleObject) {
 function drawBall(ballObject) {
   ctx.beginPath();
   ctx.arc(ballObject.posX, ballObject.posY, ballObject.radius, 0, Math.PI * 2);
-  ctx.fillStyle = "#5FA0D9";
-  ctx.fill();
+  ctx.drawImage(
+    fireball,
+    0,
+    0,
+    ballObject.radius * 2,
+    ballObject.radius * 2,
+    ballObject.posX - ballObject.radius,
+    ballObject.posY - ballObject.radius,
+    ballObject.radius * 2,
+    ballObject.radius * 2
+  );
   ctx.closePath();
 }
 
@@ -481,13 +459,13 @@ function ballBrickCollision(ballObject, brickObject, brickwallObject) {
 
 function breakingSound() {
   let brickSound = document.createElement("audio");
-  brickSound.src = "./sounds/impact.mp3";
+  brickSound.src = "./assets/sounds/impact.mp3";
   brickSound.play();
 }
 
 function poppingSound() {
   let bubbleSound = document.createElement("audio");
-  bubbleSound.src = "./sounds/bubble.mp3";
+  bubbleSound.src = "./assets/sounds/bubble.mp3";
   bubbleSound.play();
 }
 
