@@ -24,13 +24,12 @@ body {
   justify-items: center;
   height: var(--height);
   margin: 0;
-  min-width: 675px;
   position: relative;
   width: var(--width);
 }
 
 .container-main {
-  width: 70vw;
+  width: 100vw;
   display: grid;
   gap: 10px;
 }
