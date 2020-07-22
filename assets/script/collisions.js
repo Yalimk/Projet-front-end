@@ -64,10 +64,10 @@ export function ballBrickCollision(ballObject, brickObject, brickwallObject) {
       let bricks = bricksArray[r][c];
       if (bricks.state === true) {
         if (
-          ballObject.posY > bricks.y &&
-          ballObject.posY < bricks.y + brickObject.height &&
-          ballObject.posX > bricks.x &&
-          ballObject.posX < bricks.x + brickObject.width
+          ballObject.posY + ballObject.radius > bricks.y &&
+          ballObject.posY - ballObject.radius < bricks.y + brickObject.height &&
+          ballObject.posX + ballObject.radius > bricks.x &&
+          ballObject.posX - ballObject.radius < bricks.x + brickObject.width
         ) {
           ballObject.dirY *= -1;
           bricks.state = false;
