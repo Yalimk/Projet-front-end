@@ -83,24 +83,24 @@ export function ballBrickCollision(ballObject, brickObject, brickwallObject) {
 
 export function checkWinOrLose(ballObject, brickwallObject, paddleObject) {
   if (score === brickwallObject.rowCount * brickwallObject.colCount) {
+    spaceBarCollisions = false;
     ballObject.dirY = 0;
     ballObject.dirX = 0;
     paddleObject.posX = undefined;
     winDiv.style.display = "flex";
     winningSound();
     winSound.state = false;
-    spaceBarCollisions = false;
   }
   if (
     ballObject.posY + ballObject.radius >
     paddleObject.posY + paddleObject.height
   ) {
+    spaceBarCollisions = false;
     ballObject.dirY = 0;
     ballObject.dirX = 0;
     paddleObject.posX = undefined;
     loseDiv.style.display = "flex";
     losingSound();
     loseSound.state = false;
-    spaceBarCollisions = false;
   }
 }

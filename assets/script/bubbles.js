@@ -1,6 +1,6 @@
-import { canvas, ctx, bubblesArray, gameBall, spaceBarGame } from "./game.js";
+import { canvas, ctx, bubblesArray, gameBall } from "./game.js";
 import { poppingSound } from "./sounds.js";
-// import { spaceBarCollisions } from "./collisions.js";
+import { spaceBarCollisions } from "./collisions.js";
 
 export function createBubbles(color1, color2) {
   const bubble = {};
@@ -47,7 +47,7 @@ export function createBubbles(color1, color2) {
     let distX = bubble.posX - ballObject.posX;
     let distY = bubble.posY - ballObject.posY;
     let distArea = Math.sqrt(distX * distX + distY * distY);
-    if (spaceBarGame) {
+    if (spaceBarCollisions) {
       if (distArea < bubble.radius + ballObject.radius) {
         if (bubble.radius < bubble.maxRadius) {
           bubble.radius += 2;
