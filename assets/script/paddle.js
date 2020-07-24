@@ -1,7 +1,6 @@
-import { canvas, ctx, paddleImg } from "./game.js";
-import { spaceBarCollisions } from "./collisions.js";
-let rightArrow = false;
+import { canvas, ctx, paddleImg, spaceBar } from "./main.js";
 let leftArrow = false;
+let rightArrow = false;
 
 export function createPaddle() {
   let paddle = {};
@@ -29,7 +28,7 @@ export function drawPaddle(paddleObject) {
 }
 
 export function movePaddle(paddleObject) {
-  if (spaceBarCollisions) {
+  if (spaceBar) {
     if (leftArrow && paddleObject.posX > 0) {
       rightArrow = false;
       paddleObject.posX -= paddleObject.velX;

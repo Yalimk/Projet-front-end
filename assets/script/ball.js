@@ -1,4 +1,4 @@
-import { canvas, ctx, spaceBarGame, fireball } from "./game.js";
+import { canvas, ctx, spaceBar, fireball } from "./main.js";
 
 export function createBall(paddleObject) {
   let ball = {};
@@ -29,7 +29,7 @@ export function drawBall(ballObject) {
 }
 
 export function moveBall(ballObject) {
-  if (spaceBarGame) {
+  if (spaceBar) {	
     ballObject.posX += ballObject.dirX;
     ballObject.posY += ballObject.dirY;
   }

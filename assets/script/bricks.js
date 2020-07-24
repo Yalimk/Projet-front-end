@@ -1,4 +1,4 @@
-import { canvas, ctx, bricksArray, brickImg } from "./game.js";
+import { canvas, ctx, bricksArray, brickImg } from "./main.js";
 
 export function createBrickwall() {
   let brickwall = {};
